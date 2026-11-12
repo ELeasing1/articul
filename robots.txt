@@ -1,0 +1,47 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: Yandex
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/
+
+User-agent: YandexAdditional
+Allow: /
+Disallow: /admin.html
+Disallow: /api.php
+Disallow: /backups/

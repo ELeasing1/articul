@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ARTIKUL — управление сайтом</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c9a46c'/%3E%3Cpath d='M24 13h16l9 24H15z' fill='%230e0d0c'/%3E%3Cpath d='M32 37v13M24 51h16' stroke='%230e0d0c' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0e0d0c;--panel:#151412;--panel2:#1c1a17;--panel3:#24211d;--line:rgba(243,238,230,.08);--line2:rgba(243,238,230,.16);--text:#efe9df;--muted:rgba(239,233,223,.56);--faint:rgba(239,233,223,.32);--accent:#c9a46c;--accent2:#e4c48f;--danger:#e2715f;--ok:#86c493;--r:10px;
+  --ui:'Jost','Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;--serif:'Cormorant','Cormorant Garamond',Georgia,serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:400 13.5px/1.45 var(--ui);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--accent2)}
+::selection{background:var(--accent);color:#111}
+.hidden{display:none!important}
+#app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+/* верхняя панель */
+.top{display:flex;align-items:center;gap:14px;padding:0 14px 0 18px;border-bottom:1px solid var(--line);background:var(--panel);min-width:0}
+.brand{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.brand b{font:500 17px/1 var(--serif);letter-spacing:.32em;text-transform:uppercase}
+.brand span{color:var(--faint);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.file{display:flex;align-items:center;gap:8px;min-width:0;color:var(--muted);font-size:12px;margin-left:8px}
+.file i{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:0 0 7px}
+.file.dirty i{background:var(--accent)}
+.file em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow{flex:1}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{height:28px;padding:0 12px;border-radius:999px;color:var(--muted);display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+.seg button.on{background:var(--panel3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.seg svg{width:15px;height:15px}
+.ib{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid transparent}
+.ib:hover{color:var(--text);background:var(--panel2);border-color:var(--line)}
+.ib:disabled{opacity:.3;pointer-events:none}
+.ib svg{width:17px;height:17px}
+.btn{height:36px;padding:0 16px;border-radius:9px;border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;font-size:13px;transition:background .2s,border-color .2s}
+.btn:hover{background:var(--panel3);border-color:rgba(243,238,230,.28)}
+.btn.pri{background:var(--accent);color:#14110d;border-color:var(--accent);font-weight:500}
+.btn.pri:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn.sm{height:30px;padding:0 11px;font-size:12px;border-radius:8px}
+.btn.danger{color:var(--danger);border-color:rgba(226,113,95,.35)}
+.btn.danger:hover{background:rgba(226,113,95,.12)}
+.btn svg{width:15px;height:15px}
+.dd{position:relative}
+.dd-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:50;min-width:320px;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:6px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.dd-menu button{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:10px 12px;border-radius:8px}
+.dd-menu button:hover{background:var(--panel3)}
+.dd-menu button:disabled{opacity:.4;pointer-events:none}
+.dd-menu b{display:block;font-weight:500}
+.dd-menu small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.dd-menu svg{width:18px;height:18px;flex:0 0 18px;margin-top:2px;color:var(--accent)}
+/* основная область */
+.body{display:grid;grid-template-columns:430px 1fr;min-height:0}
+.side{display:grid;grid-template-columns:62px 1fr;border-right:1px solid var(--line);background:var(--panel);min-height:0}
+.tabs{display:flex;flex-direction:column;gap:2px;padding:10px 7px;border-right:1px solid var(--line);overflow-y:auto}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px;border-radius:9px;color:var(--faint);font-size:9.5px;letter-spacing:.02em}
+.tabs button svg{width:19px;height:19px}
+.tabs button:hover{color:var(--muted);background:var(--panel2)}
+.tabs button.on{color:var(--accent2);background:var(--panel2)}
+.panel{overflow-y:auto;min-height:0;padding:18px 18px 60px}
+.panel h2{margin:0 0 4px;font:400 26px/1.1 var(--serif)}
+.panel .sub{color:var(--muted);font-size:12.5px;margin:0 0 18px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card>h3{margin:0 0 10px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.card>h3 .grow{flex:1}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row+.row{margin-top:8px}
+.fld{display:block;margin-bottom:10px}
+.fld>span{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px;margin-bottom:5px}
+.fld>span em{font-style:normal;color:var(--faint)}
+.in,.ta,select.in{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;outline:none;transition:border-color .2s}
+.in:focus,.ta:focus{border-color:var(--accent)}
+.ta{min-height:90px;resize:vertical;font:12.5px/1.5 ui-monospace,Consolas,monospace}
+.ta.txt{font:13.5px/1.55 var(--ui)}
+.chk{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer}
+.chk input{display:none}
+.chk i{position:relative;width:34px;height:20px;border-radius:99px;background:var(--panel3);border:1px solid var(--line2);flex:0 0 34px;transition:background .2s}
+.chk i::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .25s,background .2s}
+.chk input:checked+i{background:rgba(201,164,108,.3);border-color:var(--accent)}
+.chk input:checked+i::after{transform:translateX(14px);background:var(--accent2)}
+.hint{color:var(--muted);font-size:12px;line-height:1.5}
+.hint b{color:var(--text);font-weight:500}
+.crumbs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:14px;font-size:12px}
+.crumbs button{color:var(--muted);padding:3px 7px;border-radius:6px;background:var(--panel2);border:1px solid var(--line)}
+.crumbs button:hover{color:var(--text)}
+.crumbs button.cur{color:var(--accent2);border-color:rgba(201,164,108,.4)}
+.crumbs i{color:var(--faint);font-style:normal}
+/* редактор текста */
+.rte-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.rte-bar button{min-width:30px;height:28px;padding:0 8px;border-radius:7px;background:var(--panel3);border:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.rte-bar button:hover{color:var(--text)}
+.rte{min-height:60px;max-height:340px;overflow:auto;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;outline:none;font:16px/1.5 var(--serif);white-space:pre-wrap}
+.rte:focus{border-color:var(--accent)}
+.rte img{height:1.1em;width:auto;vertical-align:-.15em;border-radius:4px;display:inline}
+.rte .pill{display:inline-block}
+.rte a{color:var(--accent2)}
+/* списки разделов и элементов */
+.list{display:flex;flex-direction:column;gap:4px}
+.li{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);min-height:42px}
+.li:hover{border-color:var(--line2)}
+.li.sel{border-color:var(--accent);background:rgba(201,164,108,.08)}
+.li.off{opacity:.45}
+.li .num{font-size:10.5px;color:var(--accent);width:20px;text-align:center;letter-spacing:.06em}
+.li .nm{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.li .nm small{display:block;color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.li .dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px;border:1px solid var(--line2)}
+.li .acts{display:flex;gap:2px}
+.li .acts .more{display:none;gap:2px}
+.li:hover .acts .more,.li.sel .acts .more{display:flex}
+.li .acts .ib{width:28px;height:28px;border-radius:7px}
+.li .acts .ib svg{width:15px;height:15px}
+.li .grip{cursor:grab;color:var(--faint);display:grid;place-items:center;width:16px}
+.li.drag-over{box-shadow:0 -2px 0 var(--accent)}
+.kids .li{min-height:34px;padding:5px 8px}
+/* медиатека */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mc{position:relative;border-radius:9px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);cursor:pointer}
+.mc:hover{border-color:var(--line2)}
+.mc.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mc .th{aspect-ratio:1;background:#0a0908 center/cover no-repeat;display:grid;place-items:center;color:var(--muted);font-size:11px}
+.mc .th video{width:100%;height:100%;object-fit:cover}
+.mc .cap{padding:6px 7px;font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;gap:4px}
+.mc .cap b{color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc .badge{position:absolute;top:6px;left:6px;font-size:10px;background:rgba(14,13,12,.8);padding:2px 6px;border-radius:99px;color:var(--muted)}
+.mc .badge.unused{color:var(--danger)}
+.mprev{border-radius:9px;overflow:hidden;background:#0a0908;margin-bottom:10px;display:grid;place-items:center;max-height:260px}
+.mprev img,.mprev video{max-width:100%;max-height:260px;display:block}
+.focal{display:grid;grid-template-columns:repeat(3,26px);gap:3px}
+.focal button{width:26px;height:20px;border-radius:4px;background:var(--panel3);border:1px solid var(--line)}
+.focal button.on{background:var(--accent)}
+.pick-banner{position:sticky;top:-18px;z-index:5;margin:-18px -18px 14px;padding:12px 18px;background:var(--accent);color:#14110d;display:flex;align-items:center;gap:10px;font-weight:500}
+.pick-banner .grow{flex:1}
+.pick-banner button{color:#14110d;text-decoration:underline}
+/* цвета */
+.colors{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.color{display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.color input[type=color]{width:34px;height:28px;border:0;background:none;padding:0;cursor:pointer}
+.color span{font-size:12px;color:var(--muted);line-height:1.2}
+.color span b{display:block;color:var(--text);font-weight:400}
+/* SEO-проверка */
+.check{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.check:last-child{border-bottom:0}
+.check i{flex:0 0 18px;height:18px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:600;color:#111}
+.check.ok i{background:var(--ok)}.check.warn i{background:var(--accent)}.check.bad i{background:var(--danger)}
+.check button{color:var(--accent2);text-decoration:underline}
+.serp{background:#fff;border-radius:10px;padding:14px 16px;color:#202124;font-family:Arial,sans-serif;margin-bottom:12px}
+.serp .u{font-size:12px;color:#4d5156}
+.serp .t{font-size:18px;color:#1a0dab;line-height:1.3;margin:4px 0}
+.serp .d{font-size:13px;color:#4d5156;line-height:1.45}
+/* сцена с превью */
+.stage{position:relative;background:radial-gradient(1200px 600px at 50% 0%,#1a1815,#0b0a09);min-width:0;min-height:0;overflow:hidden}
+.fw{position:absolute;left:50%;top:0;transform-origin:top center;box-shadow:0 30px 80px rgba(0,0,0,.6);background:#0d0c0b;transition:width .3s}
+.fw iframe{display:block;border:0;width:100%;height:100%;background:#0d0c0b}
+.stage-bar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;display:flex;gap:8px;align-items:center;padding:6px 8px 6px 14px;border-radius:999px;background:rgba(21,20,18,.92);border:1px solid var(--line2);backdrop-filter:blur(10px);font-size:12px;color:var(--muted);white-space:nowrap}
+.stage-bar b{color:var(--text);font-weight:500}
+.loading-pv{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);pointer-events:none;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+/* приветствие */
+#welcome{position:fixed;inset:0;z-index:80;background:radial-gradient(1000px 700px at 50% 30%,#1d1a16,#0b0a09);display:grid;place-items:center;padding:24px}
+.wl{width:min(620px,100%);text-align:center}
+.wl h1{font:300 54px/1 var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+.wl h1 em{color:var(--accent2)}
+.wl p{color:var(--muted);margin:0 0 30px}
+.drop{border:1px dashed rgba(201,164,108,.5);border-radius:16px;padding:44px 24px;cursor:pointer;transition:background .2s,border-color .2s;background:rgba(201,164,108,.04)}
+.drop:hover,.drop.over{background:rgba(201,164,108,.1);border-color:var(--accent2)}
+.drop b{display:block;font:400 22px/1.2 var(--serif);margin-bottom:8px}
+.drop span{color:var(--muted);font-size:12.5px}
+.wl .or{margin:18px 0 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* уведомления и окна */
+#toasts{position:fixed;right:18px;bottom:18px;z-index:120;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:10px;padding:11px 15px;max-width:420px;box-shadow:0 14px 40px rgba(0,0,0,.45);animation:tin .35s ease;pointer-events:auto}
+.toast.err{border-left-color:var(--danger)}.toast.ok{border-left-color:var(--ok)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+.mod-bg{position:fixed;inset:0;z-index:110;background:rgba(5,5,4,.66);display:grid;place-items:center;padding:20px;backdrop-filter:blur(4px)}
+.mod{width:min(560px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.mod.wide{width:min(900px,100%)}
+.mod h3{margin:0 0 6px;font:400 28px/1.1 var(--serif)}
+.mod .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.tpl{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tpl button{text-align:left;padding:14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.tpl button:hover{border-color:var(--accent)}
+.tpl b{display:block;font:400 20px/1.1 var(--serif);margin-bottom:6px}
+.tpl small{color:var(--muted);font-size:12px}
+.tpl .sk{height:60px;border-radius:7px;margin-bottom:10px;background:var(--panel3);display:grid;gap:4px;padding:8px}
+.tpl .sk i{display:block;background:rgba(243,238,230,.14);border-radius:3px}
+.prog{height:4px;border-radius:99px;background:var(--panel3);overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.kbd{font:11px ui-monospace,Consolas,monospace;background:var(--panel3);border:1px solid var(--line2);border-radius:5px;padding:1px 5px;color:var(--muted)}
+.help h4{font:400 20px/1.2 var(--serif);margin:18px 0 6px}
+.help p,.help li{color:var(--muted);font-size:13px;line-height:1.6}
+.help ol,.help ul{padding-left:18px;margin:6px 0}
+@media (max-width:1100px){.body{grid-template-columns:350px 1fr}.seg button span{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><b>Artikul</b><span>админка</span></div>
+    <div class="file" id="fileInfo"><i></i><em>Файл не открыт</em></div>
+    <div class="grow"></div>
+    <div class="seg" id="devSeg" title="Ширина экрана в превью">
+      <button data-dev="desktop" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>Компьютер</span></button>
+      <button data-dev="tablet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/></svg><span>Планшет</span></button>
+      <button data-dev="phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span>Телефон</span></button>
+    </div>
+    <div class="seg" id="modeSeg" title="Правка: клик выбирает элемент. Просмотр: сайт работает как у посетителя.">
+      <button data-mode="edit" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg><span>Правка</span></button>
+      <button data-mode="view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Просмотр</span></button>
+    </div>
+    <label class="chk" title="Анимации в превью. Без них проще выбирать элементы."><input type="checkbox" id="motionChk" checked><i></i><span style="font-size:12px;color:var(--muted)">Анимации</span></label>
+    <button class="ib" id="undoBtn" title="Отменить (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>
+    <button class="ib" id="redoBtn" title="Повторить (Ctrl+Shift+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg></button>
+    <div class="dd">
+      <button class="btn pri" id="saveBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg>Сохранить</button>
+      <div class="dd-menu hidden" id="saveMenu"></div>
+    </div>
+  </header>
+  <div class="body">
+    <aside class="side">
+      <nav class="tabs" id="tabs"></nav>
+      <div class="panel" id="panel"></div>
+    </aside>
+    <main class="stage" id="stage">
+      <div class="fw" id="fw"><iframe id="pv" title="Превью сайта"></iframe></div>
+      <div class="loading-pv" id="pvLoading">Загружаю превью…</div>
+      <div class="stage-bar" id="stageBar"><span>Клик&nbsp;— выбрать, двойной клик&nbsp;— править текст</span></div>
+    </main>
+  </div>
+</div>
+
+<div id="welcome">
+  <div class="wl">
+    <h1>Управление сайтом <em>ARTIKUL</em></h1>
+    <p>Тексты, фото, видео, разделы, цвета, контакты и SEO&nbsp;— всё меняется здесь, без программиста.</p>
+    <div class="drop" id="drop"><b>Откройте файл сайта</b><span>Перетащите сюда <span class="kbd">index.html</span> или нажмите, чтобы выбрать его на компьютере</span></div>
+    <input type="file" id="fileIn" accept=".html,text/html" class="hidden">
+    <div class="or" id="welcomeExtra"></div>
+  </div>
+</div>
+<div id="toasts"></div>
+<input type="file" id="mediaIn" class="hidden" multiple accept="image/*,video/mp4,video/webm">
+
+<script>
+'use strict';
+/* =============================================================
+   ARTIKUL — админка. Работает без сервера: открывает index.html,
+   показывает живое превью, правит всё и сохраняет обратно.
+   ============================================================= */
+const ADMIN_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
+const API_PHP = "<?php\n/*\n * ARTIKUL — сохранение сайта из админки (admin.html) прямо на хостинг.\n *\n * Как включить:\n *   1. Впишите свой пароль в ADMIN_PASSWORD ниже (любой длинный, не короче 10 символов).\n *   2. Загрузите на хостинг рядом с index.html файлы admin.html и api.php.\n *   3. Откройте https://ваш-домен/admin.html — кнопка «Сохранить на сайт» появится сама.\n *\n * Пока пароль пустой, сохранение на сервер выключено, сайт при этом работает как обычно.\n * Перед каждой записью index.html прежняя версия копируется в папку backups/.\n */\n\nconst ADMIN_PASSWORD = '';\n\nconst SITE_DIR = __DIR__;\nconst BACKUP_DIR = __DIR__ . '/backups';\nconst KEEP_BACKUPS = 30;\nconst MAX_FILE = 200 * 1024 * 1024;\n\nheader('Content-Type: application/json; charset=utf-8');\nheader('Cache-Control: no-store');\nheader('X-Content-Type-Options: nosniff');\n\nfunction out($data, $code = 200) {\n    http_response_code($code);\n    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);\n    exit;\n}\n\nfunction fail($msg, $code = 400) {\n    out(['ok' => false, 'error' => $msg], $code);\n}\n\nfunction ensure_dir($dir) {\n    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) fail('Не удалось создать папку ' . basename($dir), 500);\n}\n\nfunction protect_backups() {\n    ensure_dir(BACKUP_DIR);\n    $ht = BACKUP_DIR . '/.htaccess';\n    if (!file_exists($ht)) @file_put_contents($ht, \"Require all denied\\nDeny from all\\n\");\n    $ix = BACKUP_DIR . '/index.html';\n    if (!file_exists($ix)) @file_put_contents($ix, '');\n}\n\n// разрешённые пути: index.html, служебные файлы для поисковиков и медиа в папке media/\nfunction safe_name($name) {\n    if (in_array($name, ['index.html', 'robots.txt', 'sitemap.xml', 'llms.txt', 'og.jpg'], true)) return $name;\n    if (preg_match('~^media/[A-Za-z0-9_-]{1,80}\\.(webp|jpe?g|png|gif|svg|mp4|webm)$~', $name)) return $name;\n    return null;\n}\n\n$action = isset($_GET['action']) ? $_GET['action'] : '';\n\nif ($action === 'ping') {\n    out(['ok' => true, 'enabled' => ADMIN_PASSWORD !== '', 'php' => PHP_VERSION, 'writable' => is_writable(SITE_DIR)]);\n}\n\nif (ADMIN_PASSWORD === '') fail('Сохранение на сервер выключено: впишите пароль в api.php', 403);\nif (strlen(ADMIN_PASSWORD) < 10) fail('Пароль в api.php слишком короткий: нужно не меньше 10 символов', 403);\nif ($_SERVER['REQUEST_METHOD'] !== 'POST') fail('Нужен POST-запрос', 405);\n\n$pass = isset($_SERVER['HTTP_X_ADMIN_PASSWORD']) ? rawurldecode($_SERVER['HTTP_X_ADMIN_PASSWORD']) : '';\nif (!hash_equals(ADMIN_PASSWORD, $pass)) {\n    sleep(2);\n    fail('Неверный пароль', 401);\n}\n\nswitch ($action) {\n    case 'auth':\n        out(['ok' => true, 'writable' => is_writable(SITE_DIR)]);\n\n    case 'list': // какие медиафайлы уже лежат на сервере\n        $files = [];\n        foreach (glob(SITE_DIR . '/media/*') ?: [] as $f) {\n            if (is_file($f)) $files['media/' . basename($f)] = filesize($f);\n        }\n        out(['ok' => true, 'files' => $files]);\n\n    case 'put': // загрузка файла частями: n=0,1,2…, last=1 у последней части\n        $name = safe_name(isset($_GET['name']) ? $_GET['name'] : '');\n        if (!$name) fail('Недопустимое имя файла');\n        $n = isset($_GET['n']) ? (int)$_GET['n'] : 0;\n        $last = !empty($_GET['last']);\n        $target = SITE_DIR . '/' . $name;\n        ensure_dir(dirname($target));\n        protect_backups();\n        $part = BACKUP_DIR . '/.part-' . str_replace('/', '_', $name);\n        $data = file_get_contents('php://input');\n        if ($data === false) fail('Пустой запрос');\n        if (@file_put_contents($part, $data, $n === 0 ? 0 : FILE_APPEND) === false) fail('Нет прав на запись в папку сайта', 500);\n        clearstatcache();\n        if (filesize($part) > MAX_FILE) { @unlink($part); fail('Файл слишком большой', 413); }\n        if (!$last) out(['ok' => true, 'size' => filesize($part)]);\n\n        if ($name === 'index.html') {\n            $head = (string)file_get_contents($part, false, null, 0, 300);\n            if (stripos($head, '<!doctype html') === false) { @unlink($part); fail('Это не похоже на страницу сайта'); }\n            if (file_exists($target)) {\n                @copy($target, BACKUP_DIR . '/index-' . date('Ymd-His') . '.html');\n                $old = glob(BACKUP_DIR . '/index-*.html') ?: [];\n                sort($old);\n                while (count($old) > KEEP_BACKUPS) @unlink(array_shift($old));\n            }\n        }\n        if (!@rename($part, $target)) {\n            if (!@copy($part, $target)) fail('Не удалось записать ' . $name, 500);\n            @unlink($part);\n        }\n        out(['ok' => true, 'name' => $name, 'size' => filesize($target)]);\n\n    case 'backups':\n        $list = [];\n        foreach (glob(BACKUP_DIR . '/index-*.html') ?: [] as $f) $list[] = ['name' => basename($f), 'size' => filesize($f), 'time' => filemtime($f)];\n        usort($list, function ($a, $b) { return $b['time'] - $a['time']; });\n        out(['ok' => true, 'backups' => $list]);\n\n    case 'restore':\n        $b = isset($_GET['name']) ? basename($_GET['name']) : '';\n        if (!preg_match('~^index-\\d{8}-\\d{6}\\.html$~', $b) || !is_file(BACKUP_DIR . '/' . $b)) fail('Копия не найдена', 404);\n        $target = SITE_DIR . '/index.html';\n        if (file_exists($target)) @copy($target, BACKUP_DIR . '/index-' . date('Ymd-His') . '.html');\n        if (!@copy(BACKUP_DIR . '/' . $b, $target)) fail('Не удалось восстановить', 500);\n        out(['ok' => true]);\n\n    case 'cleanup': // удалить медиафайлы, которые сайт больше не использует\n        $keep = json_decode(file_get_contents('php://input'), true);\n        if (!is_array($keep)) fail('Нужен список файлов');\n        $removed = 0;\n        foreach (glob(SITE_DIR . '/media/*') ?: [] as $f) {\n            if (is_file($f) && !in_array('media/' . basename($f), $keep, true)) { @unlink($f); $removed++; }\n        }\n        out(['ok' => true, 'removed' => $removed]);\n}\n\nfail('Неизвестное действие');\n";
+
+/* ---------- мелкие помощники ---------- */
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return el;
+}
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = s => String(s || '').replace(/[ \s]+/g, ' ').replace(/‑/g, '-').trim();
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const pad = n => (n < 10 ? '0' : '') + n;
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(b / 1024)) + ' КБ';
+const dataSize = d => d ? Math.round((d.length - d.indexOf(',') - 1) * 0.75) : 0;
+const isVideoData = d => /^data:video\//.test(d || '');
+const blobToDataURL = b => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(b); });
+function dataToBytes(d) { const b = atob(d.slice(d.indexOf(',') + 1)); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+const mimeOf = d => (d || '').slice(5, d.indexOf(';'));
+const EXT = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/svg+xml': 'svg', 'video/mp4': 'mp4', 'video/webm': 'webm' };
+function toast(msg, kind = '', ms = 3800) { const t = h('div', { class: 'toast ' + kind }, msg); $('#toasts').append(t); setTimeout(() => t.remove(), ms); }
+function download(name, blob) { const a = h('a', { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
+function modal(title, body, actions = [], wide = false) {
+  return new Promise(resolve => {
+    const bg = h('div', { class: 'mod-bg' });
+    const close = v => { bg.remove(); document.removeEventListener('keydown', onKey); resolve(v); };
+    const onKey = e => { if (e.key === 'Escape') close(null); };
+    const box = h('div', { class: 'mod' + (wide ? ' wide' : '') }, h('h3', null, title), body,
+      actions.length ? h('div', { class: 'acts' }, actions.map(a => h('button', { class: 'btn' + (a.pri ? ' pri' : '') + (a.danger ? ' danger' : ''), onclick: () => { const v = a.value !== undefined ? a.value : (a.get ? a.get() : true); if (v !== false) close(v); } }, a.label))) : null);
+    bg.append(box); bg.addEventListener('mousedown', e => { if (e.target === bg) close(null); });
+    document.addEventListener('keydown', onKey); document.body.append(bg);
+    const f = box.querySelector('input,textarea'); f && setTimeout(() => f.focus(), 30);
+  });
+}
+const confirmBox = (title, text, label = 'Да', danger = false) => modal(title, h('p', { class: 'hint', html: text }), [{ label: 'Отмена', value: false }, { label, pri: !danger, danger, value: true }]);
+
+/* ---------- черновик в браузере (IndexedDB) ---------- */
+const idb = (() => {
+  let dbp;
+  const db = () => dbp || (dbp = new Promise((ok, no) => { const r = indexedDB.open('artikul-admin', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); }));
+  const tx = async (mode, fn) => { const d = await db(); return new Promise((ok, no) => { const t = d.transaction('kv', mode); const r = fn(t.objectStore('kv')); t.oncomplete = () => ok(r && r.result); t.onerror = () => no(t.error); }); };
+  return { get: k => tx('readonly', s => s.get(k)).catch(() => null), set: (k, v) => tx('readwrite', s => s.put(v, k)).catch(e => console.warn(e)), del: k => tx('readwrite', s => s.delete(k)).catch(() => null) };
+})();
+
+/* ---------- значения по умолчанию ---------- */
+const DEFAULT_CFG = {
+  v: 1,
+  contacts: { phone: '', email: '', tg: '', tgch: '', ig: '', wa: '', city: '', street: '', floor: '', zip: '', hours: '', person: '', lat: '', lon: '', ymaps: '', gis: '' },
+  seo: { title: '', description: '', keywords: '', domain: '', index: true, ogTitle: '', ogDesc: '', ogImage: 'hero', yandexVerif: '', googleVerif: '', metrika: '', ga: '', orgName: 'ARTIKUL', altName: '', founding: '', llms: '' },
+  design: { preloader: true, cursor: true, grain: true, smooth: true, motion: true, smoothDuration: 1.25, vars: {}, serif: '', sans: '', gfonts: '', hs: 1, bodySize: 16, favicon: '' },
+  code: { css: '', head: '', body: '' },
+};
+const COLOR_VARS = [['ink', 'Тёмный фон'], ['ivory', 'Светлый текст'], ['paper', 'Светлый фон'], ['studio', 'Студийный фон'], ['grey', 'Серый фон'], ['red', 'Красный фон'], ['brass', 'Акцент (латунь)'], ['brass-d', 'Акцент на светлом']];
+const THEMES = { dark: ['Тёмная', 'ink'], light: ['Светлая', 'paper'], studio: ['Студия', 'studio'], grey: ['Серая', 'grey'], red: ['Красная', 'red'] };
+const SERIFS = [['Cormorant — встроенный', "'Cormorant','Cormorant Garamond','Times New Roman',serif", ''], ['Playfair Display', "'Playfair Display',Georgia,serif", 'Playfair+Display:ital,wght@0,400;0,500;1,400'], ['Cormorant Garamond', "'Cormorant Garamond',Georgia,serif", 'Cormorant+Garamond:ital,wght@0,300;0,500;1,300'], ['Lora', "'Lora',Georgia,serif", 'Lora:ital,wght@0,400;0,500;1,400'], ['Prata', "'Prata',Georgia,serif", 'Prata'], ['Georgia — системный', 'Georgia,serif', '']];
+const SANS = [['Jost — встроенный', "'Jost','Helvetica Neue',Arial,sans-serif", ''], ['Montserrat', "'Montserrat',Arial,sans-serif", 'Montserrat:wght@300;400;500'], ['Inter', "'Inter',Arial,sans-serif", 'Inter:wght@300;400;500'], ['Manrope', "'Manrope',Arial,sans-serif", 'Manrope:wght@300;400;500'], ['Helvetica / Arial — системный', "'Helvetica Neue',Arial,sans-serif", '']];
+const TAGN = { H1: 'Главный заголовок', H2: 'Заголовок', H3: 'Подзаголовок', H4: 'Подзаголовок', P: 'Абзац', A: 'Ссылка', IMG: 'Фото', VIDEO: 'Видео', FIGURE: 'Блок с фото', FIGCAPTION: 'Подпись', LI: 'Пункт', UL: 'Список', OL: 'Список', DL: 'Характеристики', DT: 'Название', DD: 'Значение', BLOCKQUOTE: 'Цитата', SPAN: 'Текст', B: 'Текст', EM: 'Курсив', STRONG: 'Жирный', DIV: 'Блок', SECTION: 'Раздел', ARTICLE: 'Карточка', DETAILS: 'Вопрос-ответ', SUMMARY: 'Вопрос', BUTTON: 'Кнопка', SVG: 'Графика', HEADER: 'Шапка', NAV: 'Меню', FOOTER: 'Подвал', I: 'Знак', SMALL: 'Мелкий текст', SUP: 'Надпись', MAIN: 'Страница', TEXTPATH: 'Текст по кругу', TEXT: 'Текст', G: 'Группа', PATH: 'Линия' };
+const ATTR_LABELS = { href: 'Адрес ссылки', alt: 'Описание фото (для поиска и незрячих)', 'aria-label': 'Описание для поиска и незрячих', 'data-cursor': 'Подпись курсора при наведении', 'data-title': 'Название в шапке', 'data-speed': 'Скорость параллакса (1 — без него)', 'data-shift': 'Сдвиг кадра в «абажуре» на компьютере, %', 'data-shift-m': 'Сдвиг кадра вниз на телефоне, %', 'data-dir': 'Направление ленты (1 или -1)', 'data-product': 'Тип товара (для поисковиков)', title: 'Подсказка' };
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/* ---------- шаблоны новых разделов ---------- */
+const TPL = {
+  text: { name: 'Текст', d: 'Заголовок, абзац и кнопка', sk: [[70, 14], [90, 6], [60, 6]], html: m => `<section class="s t-light gx gx--text" data-sec="custom" data-theme="light" data-title="Новый раздел" data-name="Текст"><div class="wrap gx__in"><div class="label sec-l"><i data-num>00</i>Новый раздел</div><h2 class="serif h-l" data-split>Заголовок <em>раздела</em></h2><p class="lead" data-up>Расскажите здесь о&nbsp;чём угодно. Чтобы изменить текст, нажмите на&nbsp;него дважды.</p><a class="btn mag gx__btn" href="#contact"><span>Связаться</span></a></div></section>` },
+  media: { name: 'Фото и текст', d: 'Большое фото рядом с текстом', sk: [[45, 40], [45, 8]], html: m => `<section class="s t-dark gx gx--media" data-sec="custom" data-theme="dark" data-title="Новый раздел" data-name="Фото и текст"><div class="wrap gx__cols"><figure class="gx__fig" data-reveal><img data-m="${m}" alt="Опишите фото"></figure><div class="gx__txt"><div class="label sec-l"><i data-num>00</i>Новый раздел</div><h2 class="serif h-m" data-split>Заголовок <em>раздела</em></h2><p class="lead" data-up>Текст рядом с&nbsp;фотографией. Фото меняется в&nbsp;панели «Элемент» или в&nbsp;медиатеке.</p></div></div></section>` },
+  gallery: { name: 'Галерея', d: 'Шесть фото сеткой', sk: [[30, 30], [30, 30], [30, 30]], html: m => `<section class="s t-studio gx gx--gal" data-sec="custom" data-theme="studio" data-title="Галерея" data-name="Галерея"><div class="wrap"><div class="gx__head"><div class="label sec-l"><i data-num>00</i>Галерея</div><h2 class="serif h-l" data-split>Новая <em>галерея</em></h2><p class="lead" data-up>Подпишите галерею.</p></div><div class="gx__grid">${Array.from({ length: 6 }, () => `<figure class="gx__g" data-item data-reveal><img data-m="${m}" alt="Опишите фото"></figure>`).join('')}</div></div></section>` },
+  quote: { name: 'Цитата', d: 'Крупная фраза на цветном фоне', sk: [[95, 12], [80, 12], [30, 5]], html: m => `<section class="s t-red gx gx--quote" data-sec="custom" data-theme="red" data-title="Цитата" data-name="Цитата"><div class="wrap"><blockquote class="serif" data-split>«Свет&nbsp;— это <em>характер</em> пространства»</blockquote><p class="label">ARTIKUL</p></div></section>` },
+  video: { name: 'Видео', d: 'Видео во всю ширину', sk: [[100, 44]], html: m => `<section class="s t-dark gx gx--video" data-sec="custom" data-theme="dark" data-title="Видео" data-name="Видео"><div class="wrap"><div class="gx__head"><div class="label sec-l"><i data-num>00</i>Видео</div><h2 class="serif h-l" data-split>Заголовок <em>видео</em></h2></div><figure class="gx__vid" data-reveal><video data-m="${m}" muted loop playsinline preload="none" aria-label="Опишите видео"></video><figcaption class="label">Подпись к&nbsp;видео</figcaption></figure></div></section>` },
+  cards: { name: 'Карточки', d: 'Три карточки: фото, название, текст', sk: [[30, 26], [30, 26], [30, 26]], html: m => `<section class="s t-light gx gx--cards" data-sec="custom" data-theme="light" data-title="Карточки" data-name="Карточки"><div class="wrap"><div class="gx__head"><div class="label sec-l"><i data-num>00</i>Раздел</div><h2 class="serif h-l" data-split>Новые <em>карточки</em></h2><p class="lead" data-up>Короткое описание.</p></div><div class="gx__cards">${Array.from({ length: 3 }, (_, i) => `<article class="gx__card" data-item data-up><figure><img data-m="${m}" alt="Опишите фото"></figure><h3>Карточка ${i + 1}</h3><p>Описание карточки.</p></article>`).join('')}</div></div></section>` },
+};
+
+/* ---------- состояние ---------- */
+const S = { doc: null, frozen: {}, media: new Map(), cfg: null, seq: 0, sel: null, hist: [], fut: [], dirty: false, savedAt: 0, device: 'desktop', mode: 'edit', motion: true, tab: 'sections', fileName: 'index.html', base: null, server: null, pass: '', pick: null, pendingScroll: 0, pvReady: false, opts: { maxW: 2000, q: 0.82 } };
+window.__adminMedia = k => S.media.get(k) || '';
+
+/* ---------- загрузка сайта ---------- */
+async function boot() {
+  bindTop();
+  const draft = await idb.get('draft');
+  if (/^https?:/.test(location.protocol)) {
+    try { const r = await fetch('api.php?action=ping', { cache: 'no-store' }); if (r.ok) { const j = await r.json(); if (j && j.ok) S.server = j; } } catch (e) { }
+    try {
+      const r = await fetch('index.html', { cache: 'no-store' });
+      if (r.ok) { const t = await r.text(); if (t.includes('id="site-config"')) { if (draft && draft.t > (draft.savedAt || 0) && await askDraft(draft)) return restoreDraft(draft); return loadSite(t, 'index.html', new URL('index.html', location.href).href, 'server'); } }
+    } catch (e) { }
+  }
+  showWelcome(draft);
+}
+async function askDraft(d) {
+  return await modal('Есть несохранённые правки', h('p', { class: 'hint', html: `В этом браузере остался черновик от <b>${new Date(d.t).toLocaleString('ru-RU')}</b>, который не был сохранён в&nbsp;файл. Продолжить с&nbsp;него?` }), [{ label: 'Открыть сайт заново', value: false }, { label: 'Продолжить черновик', pri: true, value: true }]);
+}
+function showWelcome(draft) {
+  $('#welcome').classList.remove('hidden');
+  const drop = $('#drop'), inp = $('#fileIn');
+  drop.onclick = () => inp.click();
+  inp.onchange = () => inp.files[0] && readFile(inp.files[0]);
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave = () => drop.classList.remove('over');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; f && readFile(f); };
+  const ex = $('#welcomeExtra'); ex.innerHTML = '';
+  if (draft) ex.append(h('button', { class: 'btn', onclick: () => restoreDraft(draft) }, 'Продолжить черновик от ' + new Date(draft.t).toLocaleString('ru-RU')));
+}
+async function readFile(f) {
+  const t = await f.text();
+  if (!t.includes('id="site-config"')) return toast('Это не файл сайта ARTIKUL: откройте index.html из папки «Итоговый сайт»', 'err', 6000);
+  loadSite(t, f.name, null, 'file');
+}
+async function loadSite(text, name, baseURL, source) {
+  $('#welcome').classList.add('hidden');
+  const media = new Map();
+  text = text.replace(/<script type="text\/plain" id="m-([\w-]+)"[^>]*>([\s\S]*?)<\/script>\s*/g, (m, k, v) => { media.set(k, v.trim()); return ''; });
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  const mm = doc.getElementById('media-map');
+  if (mm) {
+    let map = {}; try { map = JSON.parse(mm.textContent); } catch (e) { }
+    mm.remove();
+    const miss = [];
+    await Promise.all(Object.entries(map).map(async ([k, u]) => {
+      if (media.has(k)) return;
+      try { if (!baseURL) throw 0; const r = await fetch(new URL(u, baseURL)); if (!r.ok) throw 0; media.set(k, await blobToDataURL(await r.blob())); } catch (e) { miss.push(k); }
+    }));
+    if (miss.length) toast('Не удалось загрузить ' + miss.length + ' медиафайлов. Откройте админку на сайте, где лежит папка media.', 'err', 8000);
+  }
+  $$('img[data-m]', doc).forEach(el => { el.removeAttribute('src'); el.removeAttribute('loading'); });
+  const frozen = {};
+  $$('[data-frozen]', doc).forEach(el => { frozen[el.getAttribute('data-frozen')] = el.textContent; el.textContent = ''; });
+  let cfg = {}; try { cfg = JSON.parse(doc.getElementById('site-config').textContent || '{}'); } catch (e) { }
+  cfg = merge(structuredClone(DEFAULT_CFG), cfg);
+  if (!Object.keys(cfg.design.vars).length) cfg.design.vars = readVars(doc);
+  $$('[data-custom],[data-gen]', doc).forEach(el => el.remove());
+  Object.assign(S, { doc, frozen, media, cfg, fileName: name, base: baseURL, source, sel: null, hist: [], fut: [], dirty: false, seq: 0 });
+  assignEids(doc.documentElement);
+  S.hist = [snap('Открыт сайт')];
+  renderTop(); renderTabs(); renderPanel(); buildPreview(false);
+  toast('Сайт открыт: ' + countSections() + ' разделов, ' + media.size + ' фото и видео', 'ok');
+}
+function merge(a, b) { for (const [k, v] of Object.entries(b || {})) a[k] = (v && typeof v === 'object' && !Array.isArray(v) && a[k] && typeof a[k] === 'object') ? merge(a[k], v) : v; return a; }
+function readVars(doc) {
+  const css = (doc.getElementById('main-css') || {}).textContent || '', out = {};
+  const root = (css.match(/:root\{([^}]*)\}/) || [])[1] || '';
+  for (const [n] of COLOR_VARS) { const m = root.match(new RegExp('--' + n.replace('-', '\\-') + ':\\s*([^;]+);')); if (m) out[n] = m[1].trim(); }
+  return out;
+}
+function assignEids(root) {
+  if (!S.seq) $$('[data-eid]', S.doc || root.ownerDocument).forEach(e => { S.seq = Math.max(S.seq, +e.getAttribute('data-eid') || 0); });
+  const seen = new Set();
+  const all = root.nodeType === 1 ? [root, ...root.querySelectorAll('*')] : [...root.querySelectorAll('*')];
+  for (const el of all) {
+    if (el.closest('head')) continue;
+    const id = el.getAttribute('data-eid');
+    if (!id || seen.has(id)) el.setAttribute('data-eid', ++S.seq);
+    seen.add(el.getAttribute('data-eid'));
+  }
+}
+function fixEids(root) { // после вставки HTML: повторы и пустые eid получают новые номера
+  const doc = S.doc;
+  for (const el of [root, ...root.querySelectorAll('*')]) {
+    const id = el.getAttribute('data-eid');
+    if (!id || $$(`[data-eid="${id}"]`, doc).length > 1 && el !== $(`[data-eid="${id}"]`, doc)) el.setAttribute('data-eid', ++S.seq);
+  }
+}
+const M = id => id ? S.doc.querySelector(`[data-eid="${id}"]`) : null;
+const eidOf = el => el && el.getAttribute && el.getAttribute('data-eid');
+const countSections = () => $$('main > section', S.doc).length;
+
+/* ---------- история правок ---------- */
+function snap(label, key) { return { label, key, t: Date.now(), html: S.doc.documentElement.outerHTML, cfg: JSON.stringify(S.cfg) }; }
+function restoreSnap(s) {
+  const doc = new DOMParser().parseFromString('<!doctype html>' + s.html, 'text/html');
+  S.doc = doc; S.cfg = JSON.parse(s.cfg); S.seq = 0;
+  $$('[data-eid]', doc).forEach(e => { S.seq = Math.max(S.seq, +e.getAttribute('data-eid') || 0); });
+}
+function commit(label, opt = {}) {
+  const last = S.hist[S.hist.length - 1];
+  const s = snap(label, opt.key);
+  if (opt.key && last && last.key === opt.key && Date.now() - last.t < 2500) S.hist[S.hist.length - 1] = s; else S.hist.push(s);
+  if (S.hist.length > 80) S.hist.splice(1, 1);
+  S.fut = []; S.dirty = true;
+  renderTop();
+  if (opt.rebuild) buildPreview(true);
+  if (opt.panel !== false) refreshPanel();
+  autosave();
+}
+function undo() { if (S.hist.length < 2) return; S.fut.push(S.hist.pop()); restoreSnap(S.hist[S.hist.length - 1]); afterHistory('Отменено'); }
+function redo() { if (!S.fut.length) return; const s = S.fut.pop(); S.hist.push(s); restoreSnap(s); afterHistory('Возвращено'); }
+function goHistory(i) { while (S.hist.length - 1 > i) S.fut.push(S.hist.pop()); restoreSnap(S.hist[i]); afterHistory('Версия восстановлена'); }
+function afterHistory(msg) { S.dirty = true; if (S.sel && !M(S.sel)) S.sel = null; renderTop(); renderPanel(); buildPreview(true); autosave(); toast(msg); }
+const autosave = debounce(() => {
+  if (!S.doc) return;
+  idb.set('draft', { t: Date.now(), savedAt: S.savedAt, html: S.doc.documentElement.outerHTML, cfg: S.cfg, frozen: S.frozen, media: [...S.media], fileName: S.fileName, base: S.base, source: S.source });
+}, 1500);
+function restoreDraft(d) {
+  $('#welcome').classList.add('hidden');
+  S.doc = new DOMParser().parseFromString('<!doctype html>' + d.html, 'text/html');
+  Object.assign(S, { cfg: merge(structuredClone(DEFAULT_CFG), d.cfg), frozen: d.frozen, media: new Map(d.media), fileName: d.fileName || 'index.html', base: d.base, source: d.source, seq: 0, sel: null, fut: [], dirty: true });
+  $$('[data-eid]', S.doc).forEach(e => { S.seq = Math.max(S.seq, +e.getAttribute('data-eid') || 0); });
+  assignEids(S.doc.documentElement);
+  S.hist = [snap('Черновик')];
+  renderTop(); renderTabs(); renderPanel(); buildPreview(false);
+  toast('Черновик восстановлен', 'ok');
+}
+
+/* ---------- превью ---------- */
+function restoreFrozen(html) {
+  return html.replace(/<(script|style)\b([^>]*?)\sdata-frozen="([\w-]+)"([^>]*)><\/\1>/g, (m, tag, a, name, b) => `<${tag}${a} data-frozen="${name}"${b}>${S.frozen[name] || ''}</${tag}>`);
+}
+function serialize(doc) { return '<!doctype html>\n' + doc.documentElement.outerHTML; }
+function previewHTML() {
+  const doc = S.doc.cloneNode(true);
+  applyHead(doc, { preview: true });
+  let html = restoreFrozen(serialize(doc));
+  const flags = `<script>window.__PREVIEW__=1;window.__STATIC__=${!S.motion};window.__MEDIA_SRC__=function(k){try{return parent.__adminMedia(k)}catch(e){return ''}};<\/script>`;
+  html = html.replace(/<head>/i, '<head>' + flags);
+  const i = html.lastIndexOf('</body>');
+  return html.slice(0, i) + '<script>(' + bridge.toString() + ')()<\/script>' + html.slice(i);
+}
+function buildPreview(keep) {
+  const fr = $('#pv');
+  let y = 0; try { y = keep && fr.contentWindow && fr.contentWindow.scrollY || 0; } catch (e) { }
+  S.pendingScroll = keep ? (y || S.pendingScroll) : 0;
+  S.pvReady = false; $('#pvLoading').classList.remove('hidden');
+  const gen = S.pvGen = (S.pvGen || 0) + 1;
+  fr.onload = () => setTimeout(() => { if (!S.pvReady && gen === S.pvGen) ADMIN.previewReady(); }, 4000);
+  fr.srcdoc = previewHTML();
+  layoutStage();
+}
+const rebuildSoon = debounce(() => buildPreview(true), 700);
+const PV = () => { try { return $('#pv').contentWindow; } catch (e) { return null; } };
+const B = () => { const w = PV(); return w && w.__BRIDGE__; };
+function layoutStage() {
+  const st = $('#stage'), fw = $('#fw');
+  const W = { desktop: 1440, tablet: 834, phone: 390 }[S.device];
+  const aw = st.clientWidth - 40, ah = st.clientHeight - 20;
+  const sc = Math.min(1, aw / W);
+  fw.style.width = W + 'px'; fw.style.height = (ah / sc) + 'px';
+  fw.style.transform = `translateX(-50%) scale(${sc})`; fw.style.top = '10px';
+  fw.style.marginLeft = '0';
+}
+addEventListener('resize', debounce(layoutStage, 120));
+
+/* мост внутри превью: подсветка, выбор, правка текста на месте */
+function bridge() {
+  var P; try { P = parent.ADMIN; } catch (e) { } if (!P) return;
+  var d = document, de = d.documentElement;
+  var st = d.createElement('style');
+  st.textContent = '#__adm{position:fixed;inset:0;pointer-events:none;z-index:2147483646}#__adm div{position:fixed;display:none;pointer-events:none;border-radius:3px}#__adm .h{outline:1px dashed rgba(228,196,143,.95);outline-offset:1px}#__adm .s{outline:2px solid #e4c48f;outline-offset:2px;box-shadow:0 0 0 9999px rgba(10,9,8,.0)}#__adm .t{background:#e4c48f;color:#14110d;font:500 11px/1 Arial,sans-serif;padding:4px 7px;border-radius:4px;white-space:nowrap}' +
+    'html.adm-edit .grain,html.adm-edit .cur,html.adm-edit .glow,html.adm-edit .svc__float{display:none!important}html.adm-edit,html.adm-edit *{cursor:default!important}html.adm-edit [contenteditable=true]{cursor:text!important;outline:2px solid #e4c48f!important;outline-offset:4px}' +
+    'html.adm-edit .hero__h,html.adm-edit .hero__h *,html.adm-edit .lotus__h,html.adm-edit .lotus__h *,html.adm-edit .lotus__label,html.adm-edit .hero__coord,html.adm-edit .hdr{pointer-events:auto!important}';
+  d.head.appendChild(st);
+  var ov = d.createElement('div'); ov.id = '__adm'; ov.innerHTML = '<div class="h"></div><div class="s"></div><div class="t"></div>';
+  de.appendChild(ov);
+  var hb = ov.children[0], sb = ov.children[1], tb = ov.children[2], hov = null, selId = null, editing = null, before = '';
+  function edit() { return P.mode() === 'edit'; }
+  function sync() { de.classList.toggle('adm-edit', edit()); }
+  sync();
+  function find(t) { return t && t.closest ? t.closest('[data-eid]') : null; }
+  function vis(el) { var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? r : null; }
+  function selEl() { if (!selId) return null; var all = d.querySelectorAll('[data-eid="' + selId + '"]'); for (var i = 0; i < all.length; i++) { var r = vis(all[i]); if (r && r.bottom > 0 && r.top < innerHeight) return all[i]; } return all[0] || null; }
+  function place(b, el, lab) {
+    var r = el && vis(el); if (!r || !edit()) { b.style.display = 'none'; if (lab) tb.style.display = 'none'; return; }
+    b.style.display = 'block'; b.style.left = r.left + 'px'; b.style.top = r.top + 'px'; b.style.width = r.width + 'px'; b.style.height = r.height + 'px';
+    if (lab) { tb.style.display = 'block'; tb.textContent = lab; tb.style.left = Math.max(4, r.left) + 'px'; tb.style.top = Math.max(4, r.top - 24) + 'px'; }
+  }
+  function draw() { sync(); var s = selEl(); place(sb, s, s ? P.label(selId) : ''); place(hb, hov && hov !== s ? hov : null); if (!s) tb.style.display = 'none'; }
+  setInterval(draw, 150); addEventListener('scroll', draw, { passive: true });
+  d.addEventListener('mouseover', function (e) { if (!edit() || editing) return; hov = find(e.target); draw(); }, true);
+  d.addEventListener('mouseleave', function () { hov = null; draw(); });
+  d.addEventListener('click', function (e) {
+    if (!edit()) return;
+    if (editing && editing.contains(e.target)) return;
+    e.preventDefault(); e.stopPropagation();
+    if (editing) { finish(true); }
+    var el = find(e.target); if (el) { selId = el.getAttribute('data-eid'); P.select(selId, true); draw(); }
+  }, true);
+  d.addEventListener('submit', function (e) { if (edit()) e.preventDefault(); }, true);
+  d.addEventListener('dblclick', function (e) {
+    if (!edit()) return; e.preventDefault(); e.stopPropagation();
+    var el = find(e.target); if (!el || el.namespaceURI === 'http://www.w3.org/2000/svg') return;
+    var id = el.getAttribute('data-eid'); if (!P.isTextual(id)) { var up = el.parentElement && find(el.parentElement); if (up && P.isTextual(up.getAttribute('data-eid'))) { el = up; id = el.getAttribute('data-eid'); } else return; }
+    start(el, id);
+  }, true);
+  function start(el, id) {
+    if (editing) finish(true);
+    editing = el; before = P.htmlOf(id);
+    el.innerHTML = P.previewHTMLOf(id);
+    el.contentEditable = 'true'; el.spellcheck = true; el.focus();
+    try { var r = d.createRange(); r.selectNodeContents(el); r.collapse(false); var s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch (x) { }
+    var lenis = window.__ARTIKUL__ && window.__ARTIKUL__.lenis; lenis && lenis.stop();
+    selId = id; P.select(id, true); P.editingInline(true);
+  }
+  function finish(save) {
+    var el = editing; if (!el) return; editing = null;
+    el.contentEditable = 'false'; el.removeAttribute('contenteditable'); el.removeAttribute('spellcheck');
+    var lenis = window.__ARTIKUL__ && window.__ARTIKUL__.lenis; lenis && lenis.start();
+    if (save) P.inlineCommit(el.getAttribute('data-eid'), el.innerHTML); else el.innerHTML = P.previewHTMLOf(el.getAttribute('data-eid'), before);
+    P.editingInline(false);
+  }
+  d.addEventListener('keydown', function (e) {
+    if (!editing) return;
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    else if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish(true); }
+  }, true);
+  d.addEventListener('focusout', function (e) { if (editing && e.target === editing) setTimeout(function () { if (editing && d.activeElement !== editing) finish(true); }, 0); }, true);
+  d.addEventListener('paste', function (e) { if (!editing) return; e.preventDefault(); var t = (e.clipboardData || window.clipboardData).getData('text/plain'); d.execCommand('insertText', false, t); }, true);
+  function each(id, fn) { var all = d.querySelectorAll('[data-eid="' + id + '"]'); for (var i = 0; i < all.length; i++) fn(all[i]); }
+  window.__BRIDGE__ = {
+    select: function (id, scroll) {
+      selId = id;
+      function go() { var el = selEl(); if (!el) return; var r = el.getBoundingClientRect(); if (!r.height || r.top >= 70 && r.bottom <= innerHeight - 40) return; var y = r.top + scrollY - Math.max(90, (innerHeight - Math.min(r.height, innerHeight)) / 2); window.__ARTIKUL__ ? window.__ARTIKUL__.scrollTo(Math.max(0, y)) : scrollTo(0, y); draw(); }
+      if (scroll) { go(); setTimeout(go, 450); setTimeout(go, 1200); setTimeout(go, 2600); }
+      draw();
+    },
+    setHTML: function (id, html) { each(id, function (el) { el.innerHTML = html; el.querySelectorAll('[data-m]').forEach(function (m) { m.__h = 0; window.__ARTIKUL__ && window.__ARTIKUL__.hydrate(m); }); }); draw(); },
+    setText: function (id, t) { each(id, function (el) { el.textContent = t; }); },
+    setAttr: function (id, n, v) { each(id, function (el) { if (v == null) el.removeAttribute(n); else el.setAttribute(n, v); if (n === 'data-m' && window.__ARTIKUL__) window.__ARTIKUL__.rehydrate(el); }); draw(); },
+    css: function (id, text) { var s = d.getElementById(id); if (s) s.textContent = text; },
+    mode: function () { sync(); if (!edit() && editing) finish(true); draw(); },
+    scrollY: function () { return scrollY; }
+  };
+  addEventListener('artikul:ready', function () { P.previewReady(); });
+}
+
+/* связь превью с админкой */
+window.ADMIN = {
+  mode: () => S.mode,
+  label: id => { const el = M(id); return el ? nameOf(el) : ''; },
+  isTextual: id => !!textual(M(id)),
+  htmlOf: id => { const el = M(id); return el ? el.innerHTML : ''; },
+  previewHTMLOf: (id, html) => withMedia(html != null ? html : ADMIN.htmlOf(id)),
+  select: (id, fromPreview) => select(id, { fromPreview }),
+  editingInline: on => { S.inlineEditing = on; },
+  inlineCommit: (id, html) => setInner(id, html, { fromPreview: true }),
+  previewReady: () => {
+    S.pvReady = true; $('#pvLoading').classList.add('hidden');
+    const w = PV(); if (w && S.pendingScroll && w.__ARTIKUL__) w.__ARTIKUL__.scrollTo(S.pendingScroll);
+    if (S.sel && B()) B().select(S.sel, false);
+  },
+};
+function withMedia(html) { // в превью картинкам внутри текста нужны данные
+  const t = document.createElement('template'); t.innerHTML = html;
+  $$('img[data-m]', t.content).forEach(im => im.setAttribute('src', S.media.get(im.getAttribute('data-m')) || ''));
+  return t.innerHTML;
+}
+
+/* ---------- что за элемент ---------- */
+const INLINE = new Set(['B', 'STRONG', 'I', 'EM', 'BR', 'A', 'SPAN', 'SMALL', 'SUP', 'SUB', 'U', 'S', 'IMG', 'ABBR', 'TIME', 'MARK', 'Q', 'CITE']);
+function textual(el) {
+  if (!el || el.nodeType !== 1) return false;
+  if (el.namespaceURI === SVG_NS) return ['text', 'textPath', 'tspan'].includes(el.localName) && el.children.length === 0 ? 'plain' : false;
+  if (['IMG', 'VIDEO', 'BR', 'SECTION', 'MAIN', 'HEADER', 'NAV', 'FOOTER', 'SCRIPT', 'STYLE'].includes(el.tagName)) return false;
+  if (!norm(el.textContent)) return false;
+  for (const d of el.querySelectorAll('*')) { if (!INLINE.has(d.tagName)) return false; }
+  return 'rich';
+}
+function nameOf(el) {
+  if (!el) return '';
+  if (el.tagName === 'SECTION') return 'Раздел «' + (el.getAttribute('data-name') || el.getAttribute('data-title') || 'без названия') + '»';
+  if (el.getAttribute('data-name')) return el.getAttribute('data-name');
+  const c = el.classList;
+  if (c.contains('btn')) return 'Кнопка';
+  if (c.contains('lead')) return 'Описание';
+  if (c.contains('sec-l')) return 'Метка раздела';
+  if (el.hasAttribute('data-num') || el.hasAttribute('data-idx')) return 'Номер (ставится сам)';
+  if (el.hasAttribute('data-c')) return 'Контакт: ' + el.getAttribute('data-c');
+  if (el.tagName === 'A' && !el.closest('nav')) return 'Ссылка';
+  if (el.hasAttribute('data-item') && el.tagName !== 'IMG') return 'Элемент списка';
+  return TAGN[el.tagName.toUpperCase()] || TAGN[(el.localName || '').toUpperCase()] || el.tagName.toLowerCase();
+}
+function shortText(el, n = 46) { const t = norm(el.textContent); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+function secOf(el) { return el && el.closest('main > section'); }
+
+/* ---------- изменения документа ---------- */
+function select(id, o = {}) {
+  S.sel = id || null;
+  if (S.tab !== 'element' && id && !S.pick) S.tab = 'element';
+  renderTabs(); renderPanel();
+  if (B() && !o.fromPreview) B().select(id, true);
+}
+function cleanInline(root) {
+  const seen = new Set();
+  (function walk(node) {
+    for (const ch of Array.from(node.childNodes)) {
+      if (ch.nodeType === 3) continue;
+      if (ch.nodeType !== 1) { ch.remove(); continue; }
+      const id = ch.getAttribute('data-eid'), orig = id && !seen.has(id) ? M(id) : null;
+      if (id) seen.add(id);
+      if (orig && orig.tagName === ch.tagName) {
+        if (orig.hasAttribute('data-m') || orig.querySelector('[data-m]') || orig.namespaceURI === SVG_NS) { ch.replaceWith(orig.cloneNode(true)); continue; }
+        for (const a of Array.from(ch.attributes)) ch.removeAttribute(a.name);
+        for (const a of Array.from(orig.attributes)) ch.setAttribute(a.name, a.value);
+        walk(ch); continue;
+      }
+      const tag = ch.tagName.toUpperCase();
+      if (['W', 'MW'].includes(ch.className) || ch.classList && (ch.classList.contains('w') || ch.classList.contains('mw') || ch.classList.contains('cl') || ch.classList.contains('ch'))) { walk(ch); ch.replaceWith(...ch.childNodes); continue; }
+      if (['B', 'STRONG', 'I', 'EM', 'SMALL', 'SUP', 'SUB', 'U', 'S', 'BR', 'A', 'MARK'].includes(tag)) {
+        const keep = tag === 'A' ? ['href', 'target', 'rel'] : [];
+        for (const a of Array.from(ch.attributes)) if (!keep.includes(a.name)) ch.removeAttribute(a.name);
+        walk(ch); continue;
+      }
+      if (tag === 'DIV' || tag === 'P') { walk(ch); if (ch.previousSibling) ch.before(document.createElement('br')); ch.replaceWith(...ch.childNodes); continue; }
+      walk(ch); ch.replaceWith(...ch.childNodes);
+    }
+  })(root);
+  return root;
+}
+function setInner(id, html, o = {}) {
+  const el = M(id); if (!el) return;
+  const t = document.createElement('div'); t.innerHTML = html;
+  cleanInline(t);
+  $$('[src]', t).forEach(x => { if (x.hasAttribute('data-m')) x.removeAttribute('src'); });
+  const clean = t.innerHTML.replace(/<br>$/, '');
+  if (clean === el.innerHTML) return;
+  el.innerHTML = clean; assignEids(el);
+  if (!o.fromPreview && B()) B().setHTML(id, withMedia(el.innerHTML));
+  commit('Текст: ' + nameOf(el), { key: 'txt' + id, panel: !o.keepPanel });
+}
+function setText(id, text) { const el = M(id); if (!el || el.textContent === text) return; el.textContent = text; B() && B().setText(id, text); commit('Текст: ' + nameOf(el), { key: 'txt' + id, panel: false }); }
+const LIVE_ATTRS = new Set(['href', 'alt', 'aria-label', 'data-m', 'data-img', 'data-cursor', 'title', 'target', 'rel', 'width', 'height', 'poster', 'data-title', 'data-name', 'id']);
+function setAttr(id, name, val, o = {}) {
+  const el = M(id); if (!el) return;
+  if (val == null || val === false) { if (!el.hasAttribute(name)) return; el.removeAttribute(name); } else { if (el.getAttribute(name) === String(val)) return; el.setAttribute(name, val === true ? '' : val); }
+  const live = LIVE_ATTRS.has(name) && !o.rebuild;
+  if (live && B()) B().setAttr(id, name, val == null || val === false ? null : val === true ? '' : val);
+  commit(o.label || ('Изменено: ' + nameOf(el)), { key: o.key || ('a' + id + name), rebuild: !live, panel: o.panel });
+}
+function structural(label, fn, selectId) { fn(); commit(label, { rebuild: true }); if (selectId !== undefined) select(selectId); }
+function dup(id) {
+  const el = M(id); if (!el) return;
+  const c = el.cloneNode(true); $$('[data-eid]', c).concat([c]).forEach(e => e.removeAttribute('data-eid'));
+  if (c.tagName === 'SECTION') { if (c.id) c.id = uniqueId(c.id); $$('[id]', c).forEach(e => e.id = uniqueId(e.id)); c.setAttribute('data-name', (el.getAttribute('data-name') || 'Раздел') + ' — копия'); }
+  el.after(c); assignEids(c);
+  structural('Дублировано: ' + nameOf(el), () => { }, eidOf(c));
+}
+function uniqueId(base) { base = base.replace(/-\d+$/, ''); let i = 2; while (S.doc.getElementById(base + '-' + i)) i++; return base + '-' + i; }
+async function del(id) {
+  const el = M(id); if (!el) return;
+  const what = nameOf(el);
+  if (!await confirmBox('Удалить?', `Удалить <b>${esc(what)}</b>${el.tagName === 'SECTION' ? ' целиком со всем содержимым' : ''}? Отменить можно кнопкой «Отменить» или Ctrl+Z.`, 'Удалить', true)) return;
+  const parent = el.parentElement && el.parentElement.closest('[data-eid]');
+  el.remove(); structural('Удалено: ' + what, () => { }, el.tagName === 'SECTION' ? null : eidOf(parent));
+}
+function move(id, dir) {
+  const el = M(id); if (!el) return;
+  const same = n => n && n.nodeType === 1 && (el.tagName === 'SECTION' ? n.tagName === 'SECTION' : (el.hasAttribute('data-item') ? n.hasAttribute('data-item') : true));
+  let sib = dir < 0 ? el.previousElementSibling : el.nextElementSibling;
+  while (sib && !same(sib)) sib = dir < 0 ? sib.previousElementSibling : sib.nextElementSibling;
+  if (!sib) return toast('Дальше двигать некуда');
+  dir < 0 ? sib.before(el) : sib.after(el);
+  structural('Перемещено: ' + nameOf(el), () => { });
+}
+function toggleOff(id) { const el = M(id); if (!el) return; const off = el.hasAttribute('data-off'); off ? el.removeAttribute('data-off') : el.setAttribute('data-off', ''); structural((off ? 'Показано: ' : 'Скрыто: ') + nameOf(el), () => { }); }
+function replaceOuter(id, html) {
+  const el = M(id); if (!el) return;
+  const t = S.doc.createElement('template'); t.innerHTML = html.trim();
+  const nodes = Array.from(t.content.childNodes); if (!nodes.length) return toast('Пустой HTML — ничего не заменено', 'err');
+  el.replaceWith(...nodes); nodes.filter(n => n.nodeType === 1).forEach(n => { assignEids(n); fixEids(n); });
+  const first = nodes.find(n => n.nodeType === 1);
+  structural('HTML заменён', () => { }, eidOf(first));
+}
+function insertSection(key, afterId) {
+  const tpl = TPL[key]; const media = firstMedia(key === 'video' ? 'video' : 'image') || 'hero';
+  const t = S.doc.createElement('template'); t.innerHTML = tpl.html(media);
+  const sec = t.content.firstElementChild; sec.id = uniqueId('razdel');
+  const after = M(afterId);
+  if (after && after.tagName === 'SECTION') after.after(sec); else { const c = $('main > section[data-sec="contact"]', S.doc); c ? c.before(sec) : $('main', S.doc).append(sec); }
+  assignEids(sec);
+  structural('Новый раздел: ' + tpl.name, () => { }, eidOf(sec));
+}
+function firstMedia(kind) { for (const [k, v] of S.media) if (kind === 'video' ? isVideoData(v) : !isVideoData(v)) return k; return null; }
+
+/* ---------- верхняя панель ---------- */
+function bindTop() {
+  $('#devSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.device = b.dataset.dev; $$('#devSeg button').forEach(x => x.classList.toggle('on', x === b)); buildPreview(true); };
+  $('#modeSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.mode = b.dataset.mode; $$('#modeSeg button').forEach(x => x.classList.toggle('on', x === b)); B() && B().mode(); $('#stageBar').innerHTML = S.mode === 'edit' ? '<span>Клик&nbsp;— выбрать, двойной клик&nbsp;— править текст</span>' : '<span>Режим просмотра: сайт работает как у&nbsp;посетителя</span>'; };
+  $('#motionChk').onchange = e => { S.motion = e.target.checked; buildPreview(true); };
+  $('#undoBtn').onclick = undo; $('#redoBtn').onclick = redo;
+  $('#saveBtn').onclick = e => { e.stopPropagation(); toggleSaveMenu(); };
+  document.addEventListener('click', e => { if (!e.target.closest('.dd')) $('#saveMenu').classList.add('hidden'); });
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+    if (mod && k === 's') { e.preventDefault(); quickSave(); }
+    else if (mod && !typing && (k === 'z' && e.shiftKey || k === 'y')) { e.preventDefault(); redo(); }
+    else if (mod && !typing && k === 'z') { e.preventDefault(); undo(); }
+    else if (k === 'escape' && !typing && S.sel) { select(null); }
+  });
+  addEventListener('beforeunload', e => { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
+  $('#mediaIn').onchange = async e => { const fs = Array.from(e.target.files); e.target.value = ''; const cb = S._mediaCb; S._mediaCb = null; await addFiles(fs, cb); };
+}
+function renderTop() {
+  const fi = $('#fileInfo');
+  fi.classList.toggle('dirty', S.dirty);
+  fi.querySelector('em').textContent = (S.source === 'server' ? 'Сайт на сервере' : S.fileName) + (S.dirty ? ' · есть несохранённые правки' : ' · сохранено');
+  $('#undoBtn').disabled = S.hist.length < 2; $('#redoBtn').disabled = !S.fut.length;
+}
+function toggleSaveMenu() {
+  const m = $('#saveMenu'); m.innerHTML = '';
+  const it = (icon, title, sub, fn, dis) => h('button', { onclick: () => { m.classList.add('hidden'); fn(); }, disabled: dis }, h('span', { html: icon }), h('div', null, h('b', null, title), h('small', null, sub)));
+  const I = { up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v4h16v-4"/></svg>', file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M12 11v6M9 14l3 3 3-3"/></svg>', zip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v2M12 7v2M12 11v2M10 15h4v3h-4z"/></svg>', open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h6l2 2h10v10H3z"/></svg>' };
+  if (S.server) m.append(it(I.up, 'Сохранить на сайт', S.server.enabled ? 'Записать изменения прямо на хостинг (нужен пароль из api.php)' : 'Выключено: впишите пароль в api.php на хостинге', saveServer, !S.server.enabled));
+  m.append(it(I.file, 'Скачать index.html', 'Один файл со всеми фото и видео — для любого хостинга и резервной копии', () => saveFile()));
+  m.append(it(I.zip, 'Скачать архив для хостинга (.zip)', 'Страница и фото отдельными файлами — сайт грузится быстрее, лучше для SEO. Внутри и админка', () => saveZip()));
+  m.append(it(I.open, 'Открыть другой файл', 'Загрузить другую версию index.html', () => { if (!S.dirty || confirm('Есть несохранённые правки. Открыть другой файл?')) showWelcome(null); }));
+  m.classList.toggle('hidden');
+}
+function quickSave() { if (!S.doc) return; if (S.server && S.server.enabled) saveServer(); else saveFile(); }
+
+/* ---------- вкладки ---------- */
+const TABS = [
+  ['sections', 'Разделы', '<path d="M4 5h16M4 12h16M4 19h10"/>'],
+  ['element', 'Элемент', '<path d="M4 4l7 16 2-7 7-2z"/>'],
+  ['media', 'Медиа', '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/>'],
+  ['contacts', 'Контакты', '<path d="M5 4h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/>'],
+  ['design', 'Дизайн', '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="16" cy="10" r="1.3"/><path d="M12 21a3 3 0 010-6h2"/>'],
+  ['seo', 'SEO', '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>'],
+  ['code', 'Код', '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>'],
+  ['history', 'История', '<path d="M3 12a9 9 0 103-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'],
+  ['help', 'Справка', '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>'],
+];
+function renderTabs() {
+  const n = $('#tabs'); n.innerHTML = '';
+  for (const [k, l, ic] of TABS) n.append(h('button', { class: S.tab === k ? 'on' : '', onclick: () => { S.tab = k; if (k !== 'media') S.pick = null; renderTabs(); renderPanel(); } }, h('span', { html: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>` }), l));
+}
+function renderPanel() {
+  const p = $('#panel'); const top = p.scrollTop; p.innerHTML = '';
+  if (!S.doc) return;
+  ({ sections: pSections, element: pElement, media: pMedia, contacts: pContacts, design: pDesign, seo: pSeo, code: pCode, history: pHistory, help: pHelp })[S.tab](p);
+  if (S._keepScroll) p.scrollTop = top; S._keepScroll = false;
+}
+function refreshPanel() { if (S.tab === 'element' && document.activeElement && $('#panel').contains(document.activeElement)) return; S._keepScroll = true; renderPanel(); }
+
+/* ---------- панель «Разделы» ---------- */
+function pSections(p) {
+  p.append(h('h2', null, 'Разделы'), h('p', { class: 'sub' }, 'Порядок, видимость и состав страницы. Перетаскивайте разделы за ручку или стрелками.'));
+  const secs = $$('main > section', S.doc); let n = 0;
+  const list = h('div', { class: 'list' });
+  for (const s of secs) {
+    const off = s.hasAttribute('data-off'); if (!off) n++;
+    const id = eidOf(s), th = THEMES[s.getAttribute('data-theme')] || THEMES.dark;
+    const row = h('div', { class: 'li' + (S.sel === id ? ' sel' : '') + (off ? ' off' : ''), draggable: 'true', 'data-id': id },
+      h('span', { class: 'grip', html: '<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor"><circle cx="2" cy="3" r="1.3"/><circle cx="8" cy="3" r="1.3"/><circle cx="2" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="2" cy="13" r="1.3"/><circle cx="8" cy="13" r="1.3"/></svg>' }),
+      h('span', { class: 'num' }, off ? '—' : pad(n)),
+      h('span', { class: 'dot', title: 'Фон: ' + th[0], style: { background: S.cfg.design.vars[th[1]] || '#333' } }),
+      h('button', { class: 'nm', onclick: () => select(id) }, s.getAttribute('data-name') || s.getAttribute('data-title') || 'Раздел', h('small', null, (s.id ? '#' + s.id + ' · ' : '') + (s.getAttribute('data-title') || ''))),
+      h('span', { class: 'acts' },
+        h('span', { class: 'more' }, iconBtn('up', 'Выше', () => move(id, -1)), iconBtn('down', 'Ниже', () => move(id, 1)),
+          iconBtn('copy', 'Дублировать', () => dup(id)), iconBtn('trash', 'Удалить', () => del(id))),
+        iconBtn(off ? 'eyeoff' : 'eye', off ? 'Показать раздел' : 'Скрыть раздел', () => toggleOff(id))));
+    row.ondragstart = e => { e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'move'; };
+    row.ondragover = e => { e.preventDefault(); row.classList.add('drag-over'); };
+    row.ondragleave = () => row.classList.remove('drag-over');
+    row.ondrop = e => { e.preventDefault(); row.classList.remove('drag-over'); const from = M(e.dataTransfer.getData('text/plain')); if (from && from !== s) structural('Перемещён раздел', () => s.before(from)); };
+    list.append(row);
+  }
+  p.append(list, h('div', { class: 'row', style: { marginTop: '12px' } }, h('button', { class: 'btn pri', onclick: () => pickTemplate() }, '+ Добавить раздел'), h('button', { class: 'btn', onclick: syncMenu, title: 'Пересобрать пункты меню по видимым разделам' }, 'Собрать меню из разделов')));
+  const g = h('div', { class: 'card', style: { marginTop: '18px' } }, h('h3', null, 'Общие блоки'));
+  const gl = h('div', { class: 'list' });
+  [['#hdr', 'Шапка: логотип, телефон, кнопка меню'], ['#menu', 'Меню (открывается кнопкой «Меню»)'], ['#loader', 'Заставка при загрузке']].forEach(([sel, nm]) => { const el = $(sel, S.doc); if (el) gl.append(h('div', { class: 'li' + (S.sel === eidOf(el) ? ' sel' : '') }, h('button', { class: 'nm', onclick: () => select(eidOf(el)) }, nm))); });
+  g.append(gl); p.append(g);
+}
+async function pickTemplate() {
+  const box = h('div', { class: 'tpl' });
+  const v = await new Promise(res => {
+    for (const [k, t] of Object.entries(TPL)) box.append(h('button', { onclick: () => { res(k); $('.mod-bg') && $('.mod-bg').remove(); } }, h('div', { class: 'sk' }, t.sk.map(([w, hh]) => h('i', { style: { width: w + '%', height: hh + 'px' } }))), h('b', null, t.name), h('small', null, t.d)));
+    modal('Новый раздел', h('div', null, h('p', { class: 'hint' }, 'Выберите тип. Раздел появится после выбранного (или перед контактами) — дальше его можно менять, двигать и наполнять.'), box), [{ label: 'Отмена', value: null }], true).then(x => res(x));
+  });
+  if (v) insertSection(v, S.sel && M(S.sel) && secOf(M(S.sel)) ? eidOf(secOf(M(S.sel))) : null);
+}
+function syncMenu() {
+  const ol = $('#menuList', S.doc); if (!ol) return toast('Меню не найдено', 'err');
+  const items = $$('main > section', S.doc).filter(s => !s.hasAttribute('data-off') && s.getAttribute('data-sec') !== 'hero');
+  structural('Меню собрано из разделов', () => {
+    ol.innerHTML = '';
+    items.forEach((s, i) => { if (!s.id) s.id = uniqueId('razdel'); const li = S.doc.createElement('li'); li.setAttribute('data-item', ''); li.innerHTML = `<a href="#${s.id}"><i data-idx>${pad(i + 1)}</i>${esc(s.getAttribute('data-menu') || s.getAttribute('data-title') || s.getAttribute('data-name') || 'Раздел')}</a>`; ol.append(li); });
+    assignEids(ol);
+  });
+  toast('Меню обновлено: ' + items.length + ' пунктов', 'ok');
+}
+const ICONS = { eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', eyeoff: '<path d="M3 3l18 18M10.6 6.1A10 10 0 0112 6c6.5 0 10 6 10 6a17 17 0 01-3.2 3.9M6.2 6.6A17 17 0 002 12s3.5 7 10 7a9.6 9.6 0 004.3-1"/>', up: '<path d="M12 19V5M6 11l6-6 6 6"/>', down: '<path d="M12 5v14M6 13l6 6 6-6"/>', copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>', trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/>', dl: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>', swap: '<path d="M4 8h13l-4-4M20 16H7l4 4"/>' };
+function iconBtn(ic, title, fn) { return h('button', { class: 'ib', title, onclick: e => { e.stopPropagation(); fn(); }, html: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[ic]}</svg>` }); }
+
+/* ---------- панель «Элемент» ---------- */
+function pElement(p) {
+  const el = M(S.sel);
+  if (!el) {
+    p.append(h('h2', null, 'Элемент'), h('p', { class: 'sub' }, 'Нажмите на любой текст, фото или блок в превью справа — здесь появятся его настройки.'),
+      h('div', { class: 'card' }, h('p', { class: 'hint', html: '<b>Клик</b> — выбрать элемент.<br><b>Двойной клик по тексту</b> — исправить прямо на странице (Enter — готово, Esc — отмена, Shift+Enter — перенос строки).<br><b>Режим «Просмотр»</b> сверху — сайт ведёт себя как у посетителя: работают меню и ссылки.' })));
+    return;
+  }
+  const id = S.sel;
+  // хлебные крошки
+  const chain = []; for (let n = el; n && n.tagName !== 'BODY' && n.tagName !== 'HTML'; n = n.parentElement) if (n.hasAttribute('data-eid')) chain.unshift(n);
+  const cr = h('div', { class: 'crumbs' });
+  chain.slice(-5).forEach((n, i, a) => { cr.append(h('button', { class: n === el ? 'cur' : '', onclick: () => select(eidOf(n)) }, nameOf(n).replace(/^Раздел /, ''))); if (i < a.length - 1) cr.append(h('i', null, '›')); });
+  p.append(h('h2', null, nameOf(el)), cr);
+  const isSec = el.tagName === 'SECTION';
+  if (isSec) p.append(cardSection(el, true));
+
+  const tx = textual(el);
+  if (tx === 'rich') p.append(cardText(el));
+  if (tx === 'plain') p.append(h('div', { class: 'card' }, h('h3', null, 'Текст'), h('textarea', { class: 'ta txt', rows: 2, oninput: debounce(e => setText(id, e.target.value), 350) }, el.textContent)));
+  if (el.hasAttribute('data-num') || el.hasAttribute('data-idx') || el.hasAttribute('data-total')) p.append(h('div', { class: 'card' }, h('p', { class: 'hint' }, 'Этот номер ставится автоматически по порядку разделов или пунктов — менять его не нужно.')));
+  if (el.hasAttribute('data-c')) p.append(h('div', { class: 'card' }, h('p', { class: 'hint', html: 'Это контакт: он подставляется из вкладки <b>«Контакты»</b> и меняется там сразу во всех местах сайта.' }), h('button', { class: 'btn sm', onclick: () => { S.tab = 'contacts'; renderTabs(); renderPanel(); } }, 'Открыть контакты')));
+  const a = el.closest('a'); if (a) p.append(cardLink(a));
+  const media = el.matches('img[data-m],video[data-m]') ? [el] : $$('img[data-m],video[data-m]', el).slice(0, 4);
+  if (media.length && !tx && !isSec) media.forEach(m => p.append(cardMedia(m)));
+  if (el.hasAttribute('data-img')) p.append(cardHoverImg(el));
+  const item = el.closest('[data-item]'); if (item) p.append(cardItem(item));
+  const sec = secOf(el); if (sec && !isSec) p.append(cardSection(sec, false));
+  if (el.id === 'menu' || el.closest('#menu')) p.append(h('div', { class: 'card' }, h('h3', null, 'Меню'), h('p', { class: 'hint' }, 'Пункты меню — это ссылки на разделы. Можно править каждый пункт или собрать меню заново из видимых разделов.'), h('button', { class: 'btn sm', onclick: syncMenu }, 'Собрать меню из разделов')));
+  const kids = Array.from(el.children).filter(k => k.hasAttribute('data-eid') && !['SCRIPT', 'STYLE', 'BR'].includes(k.tagName));
+  if (kids.length && el.tagName !== 'SECTION' || el.tagName === 'SECTION') {
+    const inner = el.tagName === 'SECTION' ? $$('[data-eid]', el).filter(k => (textual(k) && !textual(k.parentElement)) || k.matches('img[data-m],video[data-m]')).slice(0, 80) : kids;
+    if (inner.length) {
+      const c = h('div', { class: 'card kids' }, h('h3', null, el.tagName === 'SECTION' ? 'Тексты и фото раздела' : 'Внутри'));
+      const l = h('div', { class: 'list' });
+      inner.forEach(k => l.append(h('div', { class: 'li' + (k.hasAttribute('data-off') ? ' off' : '') }, h('button', { class: 'nm', onclick: () => select(eidOf(k)) }, nameOf(k), h('small', null, k.matches('img,video') ? (k.getAttribute('alt') || k.getAttribute('aria-label') || k.getAttribute('data-m')) : shortText(k))))));
+      c.append(l); p.append(c);
+    }
+  }
+  p.append(cardAdvanced(el));
+}
+function cardText(el) {
+  const id = eidOf(el);
+  const ed = h('div', { class: 'rte', contenteditable: 'true', spellcheck: 'true', html: withMedia(el.innerHTML) });
+  const save = debounce(() => setInner(id, ed.innerHTML, { keepPanel: true }), 450);
+  ed.addEventListener('input', save);
+  ed.addEventListener('paste', e => { e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
+  ed.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); document.execCommand('insertLineBreak'); } });
+  const cmd = (c, v) => () => { ed.focus(); document.execCommand(c, false, v); save(); };
+  const bar = h('div', { class: 'rte-bar' },
+    h('button', { title: 'Курсив (акцент)', onclick: () => { ed.focus(); wrapSel('em'); save(); }, html: '<i style="font-family:Georgia">К</i>' }),
+    h('button', { title: 'Жирный', onclick: cmd('bold'), html: '<b>Ж</b>' }),
+    h('button', { title: 'Ссылка', onclick: async () => { const sel = getSelection(); const r = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null; const u = await promptBox('Ссылка', 'Адрес: https://…, #раздел, tel:+7…, mailto:…', 'https://'); if (!u || !r) return; sel.removeAllRanges(); sel.addRange(r); document.execCommand('createLink', false, u); save(); } }, 'Ссылка'),
+    h('button', { title: 'Перенос строки', onclick: cmd('insertLineBreak') }, '↵'),
+    h('button', { title: 'Неразрывный пробел: слова не разъедутся по строкам', onclick: cmd('insertText', ' ') }, '⍽'),
+    h('button', { title: 'Убрать оформление', onclick: cmd('removeFormat') }, 'Очистить'));
+  const raw = h('textarea', { class: 'ta hidden', rows: 6, onchange: e => { setInner(id, e.target.value); ed.innerHTML = withMedia(M(id).innerHTML); } }, el.innerHTML);
+  return h('div', { class: 'card' }, h('h3', null, 'Текст', h('span', { class: 'grow' }), h('button', { class: 'btn sm', onclick: () => { raw.classList.toggle('hidden'); raw.value = M(id).innerHTML; } }, 'HTML')), bar, ed, raw,
+    h('p', { class: 'hint', style: { marginTop: '8px' } }, 'Изменения сразу видны на сайте. Можно править и прямо на странице двойным кликом.'));
+}
+function wrapSel(tag) {
+  const s = getSelection(); if (!s.rangeCount) return; const r = s.getRangeAt(0); if (r.collapsed) return;
+  const anc = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
+  const ex = anc.closest(tag); if (ex && ex.closest('.rte')) { ex.replaceWith(...ex.childNodes); return; }
+  const w = document.createElement(tag); try { r.surroundContents(w); } catch (e) { w.append(r.extractContents()); r.insertNode(w); }
+}
+function promptBox(title, label, val = '') { const i = h('input', { class: 'in', value: val }); return modal(title, h('label', { class: 'fld' }, h('span', null, label), i), [{ label: 'Отмена', value: null }, { label: 'Готово', pri: true, get: () => i.value.trim() }]); }
+function cardLink(a) {
+  const id = eidOf(a);
+  const anchors = $$('main > section[id]', S.doc).map(s => ['#' + s.id, (s.getAttribute('data-name') || s.id)]);
+  const inp = h('input', { class: 'in', value: a.getAttribute('href') || '', onchange: e => setAttr(id, 'href', e.target.value.trim(), { label: 'Ссылка изменена' }) });
+  const bound = a.hasAttribute('data-ch');
+  return h('div', { class: 'card' }, h('h3', null, 'Ссылка'),
+    bound ? h('p', { class: 'hint', style: { marginBottom: '8px' }, html: 'Адрес берётся из вкладки <b>«Контакты»</b>. Если впишете свой здесь, он заменится при следующей правке контактов.' }) : null,
+    h('label', { class: 'fld' }, h('span', null, 'Куда ведёт', h('em', null, 'https://…, #раздел, tel:, mailto:')), inp),
+    h('div', { class: 'row' },
+      h('select', { class: 'in', style: { flex: 1 }, onchange: e => { if (e.target.value) { inp.value = e.target.value; setAttr(id, 'href', e.target.value); } } }, h('option', { value: '' }, 'Ссылка на раздел страницы…'), anchors.map(([v, l]) => h('option', { value: v }, l))),
+      h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: a.getAttribute('target') === '_blank', onchange: e => { setAttr(id, 'target', e.target.checked ? '_blank' : null); if (e.target.checked) M(id).setAttribute('rel', 'noopener'); } }), h('i'), h('span', { class: 'hint' }, 'в новой вкладке'))));
+}
+function cardMedia(m) {
+  const id = eidOf(m), k = m.getAttribute('data-m'), data = S.media.get(k), isV = m.tagName === 'VIDEO';
+  const c = h('div', { class: 'card' }, h('h3', null, isV ? 'Видео' : 'Фото', h('span', { class: 'grow' }), h('span', { style: { textTransform: 'none', letterSpacing: 0, color: 'var(--faint)' } }, k + (data ? ' · ' + fmtSize(dataSize(data)) : ' · файла нет'))));
+  c.append(h('div', { class: 'mprev' }, data ? (isV ? h('video', { src: data, muted: true, loop: true, autoplay: true, playsinline: true }) : h('img', { src: data, alt: '' })) : h('div', { class: 'hint', style: { padding: '30px' } }, 'Файл не найден')));
+  c.append(h('div', { class: 'row' },
+    h('button', { class: 'btn sm pri', onclick: () => uploadFor(m) }, 'Загрузить новый файл'),
+    h('button', { class: 'btn sm', onclick: () => { S.pick = { id, kind: isV ? 'video' : 'image', label: nameOf(m) }; S.tab = 'media'; renderTabs(); renderPanel(); } }, 'Выбрать из медиатеки')));
+  const altName = isV ? 'aria-label' : 'alt';
+  c.append(h('label', { class: 'fld', style: { marginTop: '10px' } }, h('span', null, 'Описание', h('em', null, 'для Google, Яндекса и незрячих')), h('input', { class: 'in', value: m.getAttribute(altName) || '', placeholder: 'Например: Торшер в чёрно-белую полоску в гостиной', onchange: e => setAttr(id, altName, e.target.value.trim(), { label: 'Описание фото' }) })));
+  if (!isV) {
+    const pos = ((m.getAttribute('style') || '').match(/object-position:\s*([^;]+)/) || [])[1] || '';
+    const grid = h('div', { class: 'focal' });
+    ['0% 0%', '50% 0%', '100% 0%', '0% 50%', '50% 50%', '100% 50%', '0% 100%', '50% 100%', '100% 100%'].forEach(v => grid.append(h('button', { class: pos.trim() === v ? 'on' : '', title: 'Показывать эту часть кадра', onclick: () => { setStyleProp(id, 'object-position', v); } })));
+    c.append(h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('span', { class: 'hint' }, 'Какую часть кадра показывать, если фото обрезается'), grid));
+    if (pos) c.append(h('button', { class: 'btn sm', style: { marginTop: '6px' }, onclick: () => setStyleProp(id, 'object-position', null) }, 'Сбросить кадрирование'));
+  }
+  return c;
+}
+function setStyleProp(id, prop, val) {
+  const el = M(id); if (!el) return;
+  const st = (el.getAttribute('style') || '').split(';').map(s => s.trim()).filter(s => s && !s.startsWith(prop));
+  if (val) st.push(prop + ':' + val);
+  setAttr(id, 'style', st.length ? st.join(';') : null, { rebuild: true, label: 'Кадрирование фото' });
+}
+function cardHoverImg(el) {
+  const id = eidOf(el), k = el.getAttribute('data-img'), data = S.media.get(k);
+  return h('div', { class: 'card' }, h('h3', null, 'Фото при наведении'), data ? h('div', { class: 'mprev' }, h('img', { src: data })) : null,
+    h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => { S.pick = { id, kind: 'image', attr: 'data-img', label: 'Фото при наведении' }; S.tab = 'media'; renderTabs(); renderPanel(); } }, 'Выбрать из медиатеки'), h('button', { class: 'btn sm', onclick: () => { S._mediaCb = keys => keys[0] && setAttr(id, 'data-img', keys[0], { label: 'Фото при наведении' }); $('#mediaIn').accept = 'image/*'; $('#mediaIn').multiple = false; $('#mediaIn').click(); } }, 'Загрузить')));
+}
+function cardItem(item) {
+  const id = eidOf(item), off = item.hasAttribute('data-off');
+  return h('div', { class: 'card' }, h('h3', null, 'Элемент списка'), h('p', { class: 'hint', style: { marginBottom: '10px' } }, shortText(item, 80) || nameOf(item)),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn sm', onclick: () => dup(id) }, 'Дублировать'),
+      h('button', { class: 'btn sm', onclick: () => move(id, -1) }, '↑ Выше'), h('button', { class: 'btn sm', onclick: () => move(id, 1) }, '↓ Ниже'),
+      h('button', { class: 'btn sm', onclick: () => toggleOff(id) }, off ? 'Показать' : 'Скрыть'),
+      h('button', { class: 'btn sm danger', onclick: () => del(id) }, 'Удалить')),
+    item !== M(S.sel) ? h('button', { class: 'btn sm', style: { marginTop: '8px' }, onclick: () => select(id) }, 'Выбрать весь элемент') : null);
+}
+function cardSection(sec, isSel) {
+  const id = eidOf(sec), off = sec.hasAttribute('data-off');
+  const c = h('div', { class: 'card' }, h('h3', null, 'Раздел', h('span', { class: 'grow' }), isSel ? null : h('button', { class: 'btn sm', onclick: () => select(id) }, 'Выбрать раздел')));
+  if (!isSel) { c.append(h('p', { class: 'hint' }, sec.getAttribute('data-name') || sec.getAttribute('data-title'))); return c; }
+  const theme = sec.getAttribute('data-theme') || 'dark';
+  c.append(
+    h('label', { class: 'fld' }, h('span', null, 'Название в админке'), h('input', { class: 'in', value: sec.getAttribute('data-name') || '', onchange: e => setAttr(id, 'data-name', e.target.value.trim(), { label: 'Название раздела' }) })),
+    h('label', { class: 'fld' }, h('span', null, 'Подпись в шапке сайта', h('em', null, 'видна по центру сверху')), h('input', { class: 'in', value: sec.getAttribute('data-title') || '', onchange: e => setAttr(id, 'data-title', e.target.value.trim(), { label: 'Подпись раздела', rebuild: true }) })),
+    h('label', { class: 'fld' }, h('span', null, 'Якорь для ссылок', h('em', null, 'латиница, без пробелов')), h('input', { class: 'in', value: sec.id || '', onchange: e => { const v = e.target.value.trim().replace(/[^\w-]/g, '-'); setAttr(id, 'id', v || null, { label: 'Якорь раздела' }); } })),
+    h('label', { class: 'fld' }, h('span', null, 'Фон раздела'), h('select', { class: 'in', onchange: e => setTheme(id, e.target.value) }, Object.entries(THEMES).map(([k, [l]]) => h('option', { value: k, selected: k === theme }, l)))),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn sm', onclick: () => toggleOff(id) }, off ? 'Показать раздел' : 'Скрыть раздел'),
+      h('button', { class: 'btn sm', onclick: () => move(id, -1) }, '↑'), h('button', { class: 'btn sm', onclick: () => move(id, 1) }, '↓'),
+      h('button', { class: 'btn sm', onclick: () => dup(id) }, 'Дублировать'),
+      h('button', { class: 'btn sm danger', onclick: () => del(id) }, 'Удалить')));
+  return c;
+}
+function setTheme(id, t) { const s = M(id); structural('Фон раздела', () => { s.setAttribute('data-theme', t); Object.keys(THEMES).forEach(k => s.classList.remove('t-' + k)); s.classList.add('t-' + t); }); }
+function cardAdvanced(el) {
+  const id = eidOf(el);
+  const det = h('details', null, h('summary', { style: { cursor: 'pointer', color: 'var(--muted)', fontSize: '12px', letterSpacing: '.12em', textTransform: 'uppercase' } }, 'Для опытных: атрибуты и HTML'));
+  const tb = h('div', { style: { marginTop: '10px' } });
+  for (const at of Array.from(el.attributes)) {
+    if (at.name === 'data-eid') continue;
+    tb.append(h('label', { class: 'fld' }, h('span', null, ATTR_LABELS[at.name] || at.name, h('em', null, at.name)),
+      h('div', { class: 'row', style: { flexWrap: 'nowrap' } }, h('input', { class: 'in', value: at.value, onchange: e => setAttr(id, at.name, e.target.value, { rebuild: !LIVE_ATTRS.has(at.name) }) }), iconBtn('trash', 'Удалить атрибут', () => setAttr(id, at.name, null, { rebuild: true })))));
+  }
+  const nn = h('input', { class: 'in', placeholder: 'новый атрибут, например data-speed' }), nv = h('input', { class: 'in', placeholder: 'значение' });
+  tb.append(h('div', { class: 'row', style: { flexWrap: 'nowrap', marginBottom: '12px' } }, nn, nv, h('button', { class: 'btn sm', onclick: () => { const n = nn.value.trim(); if (/^[a-z][\w:-]*$/i.test(n)) setAttr(id, n, nv.value, { rebuild: true }); else toast('Название атрибута — латиницей', 'err'); } }, '+')));
+  const clean = el.cloneNode(true); [clean, ...clean.querySelectorAll('[data-eid]')].forEach(e => e.removeAttribute('data-eid'));
+  const ta = h('textarea', { class: 'ta', rows: 10 }, clean.outerHTML);
+  tb.append(h('label', { class: 'fld' }, h('span', null, 'HTML элемента целиком'), ta), h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => replaceOuter(id, ta.value) }, 'Применить HTML'), h('button', { class: 'btn sm danger', onclick: () => del(id) }, 'Удалить элемент')));
+  det.append(tb);
+  return h('div', { class: 'card' }, det);
+}
+
+/* ---------- медиатека ---------- */
+function usage() { const u = new Map(); $$('[data-m],[data-img]', S.doc).forEach(e => { for (const a of ['data-m', 'data-img']) { const k = e.getAttribute(a); if (k) u.set(k, (u.get(k) || 0) + 1); } }); if (S.cfg.seo.ogImage) u.set(S.cfg.seo.ogImage, (u.get(S.cfg.seo.ogImage) || 0) + 1); return u; }
+function pMedia(p) {
+  const u = usage();
+  if (S.pick) p.append(h('div', { class: 'pick-banner' }, h('span', { class: 'grow' }, 'Выберите файл: ' + S.pick.label), h('button', { onclick: () => { S.pick = null; S.tab = 'element'; renderTabs(); renderPanel(); } }, 'Отмена')));
+  let total = 0; for (const v of S.media.values()) total += dataSize(v);
+  p.append(h('h2', null, 'Медиатека'), h('p', { class: 'sub' }, `${S.media.size} файлов · ${fmtSize(total)}. Фото сжимаются в WebP автоматически при загрузке.`));
+  const filt = h('input', { class: 'in', placeholder: 'Поиск по имени…', oninput: () => draw() });
+  const kind = h('select', { class: 'in', style: { width: '130px' }, onchange: () => draw() }, h('option', { value: '' }, 'Все'), h('option', { value: 'image' }, 'Фото'), h('option', { value: 'video' }, 'Видео'), h('option', { value: 'unused' }, 'Неиспользуемые'));
+  if (S.pick) kind.value = S.pick.kind;
+  p.append(h('div', { class: 'row', style: { marginBottom: '10px' } }, h('button', { class: 'btn pri', onclick: () => { S._mediaCb = keys => { if (S.pick && keys[0]) assignPick(keys[0]); }; $('#mediaIn').accept = 'image/*,video/mp4,video/webm'; $('#mediaIn').multiple = true; $('#mediaIn').click(); } }, '+ Загрузить файлы'), h('button', { class: 'btn', onclick: pruneMedia }, 'Удалить неиспользуемые')));
+  p.append(h('div', { class: 'row', style: { flexWrap: 'nowrap', marginBottom: '12px' } }, filt, kind));
+  const grid = h('div', { class: 'mgrid' }); p.append(grid);
+  p.append(h('div', { class: 'card', style: { marginTop: '14px' } }, h('h3', null, 'Сжатие новых фото'),
+    h('label', { class: 'fld' }, h('span', null, 'Максимальная ширина', h('em', null, S.opts.maxW + ' px')), h('input', { type: 'range', min: 1000, max: 3200, step: 100, value: S.opts.maxW, style: { width: '100%' }, oninput: e => { S.opts.maxW = +e.target.value; e.target.previousSibling.lastChild.textContent = S.opts.maxW + ' px'; } })),
+    h('label', { class: 'fld' }, h('span', null, 'Качество', h('em', null, Math.round(S.opts.q * 100) + '%')), h('input', { type: 'range', min: .5, max: .95, step: .01, value: S.opts.q, style: { width: '100%' }, oninput: e => { S.opts.q = +e.target.value; e.target.previousSibling.lastChild.textContent = Math.round(S.opts.q * 100) + '%'; } }))));
+  function draw() {
+    grid.innerHTML = '';
+    const q = filt.value.trim().toLowerCase(), kd = kind.value;
+    for (const [k, v] of S.media) {
+      const isV = isVideoData(v), n = u.get(k) || 0;
+      if (q && !k.toLowerCase().includes(q)) continue;
+      if (kd === 'image' && isV || kd === 'video' && !isV || kd === 'unused' && n) continue;
+      const th = h('div', { class: 'th', style: isV ? {} : { backgroundImage: `url("${v}")` } }, isV ? 'ВИДЕО' : null);
+      const card = h('div', { class: 'mc', title: k, onclick: () => S.pick ? assignPick(k) : mediaMenu(k) }, th, h('span', { class: 'badge' + (n ? '' : ' unused') }, n ? n + '×' : 'не исп.'), h('div', { class: 'cap' }, h('b', null, k), h('span', null, fmtSize(dataSize(v)))));
+      grid.append(card);
+    }
+    if (!grid.children.length) grid.append(h('p', { class: 'hint' }, 'Ничего не найдено'));
+  }
+  draw();
+}
+function assignPick(k) {
+  const pk = S.pick; S.pick = null;
+  const el = M(pk.id); if (!el) return;
+  const v = S.media.get(k);
+  if (pk.kind === 'video' && !isVideoData(v) || pk.kind === 'image' && isVideoData(v)) { S.pick = pk; return toast(pk.kind === 'video' ? 'Здесь нужно видео' : 'Здесь нужно фото', 'err'); }
+  applyMedia(el, k, pk.attr || 'data-m');
+  S.tab = 'element'; renderTabs(); renderPanel();
+}
+async function applyMedia(el, k, attr = 'data-m') {
+  const id = eidOf(el); let meta = S.mediaDims && S.mediaDims[k];
+  const d = S.media.get(k);
+  if (!meta && d && !isVideoData(d)) { try { const im = await loadImg(d); meta = { w: im.naturalWidth, h: im.naturalHeight }; } catch (e) { } }
+  if (attr === 'data-m' && meta) { el.setAttribute('width', meta.w); el.setAttribute('height', meta.h); if (meta.poster && el.tagName === 'VIDEO') el.setAttribute('poster', meta.poster); }
+  setAttr(id, attr, k, { label: 'Медиа заменено' });
+}
+async function mediaMenu(k) {
+  const v = S.media.get(k), isV = isVideoData(v), u = usage().get(k) || 0;
+  const uses = $$(`[data-m="${k}"],[data-img="${k}"]`, S.doc);
+  const r = await modal(k, h('div', null, h('div', { class: 'mprev' }, isV ? h('video', { src: v, controls: true, muted: true }) : h('img', { src: v })), h('p', { class: 'hint' }, `${isV ? 'Видео' : 'Фото'} · ${fmtSize(dataSize(v))} · используется ${u} раз`)),
+    [{ label: 'Скачать', value: 'dl' }, { label: 'Заменить файлом', value: 'rep' }, uses.length ? { label: 'Показать на сайте', value: 'show' } : null, !u ? { label: 'Удалить', danger: true, value: 'del' } : null, { label: 'Закрыть', pri: true, value: null }].filter(Boolean));
+  if (r === 'dl') download(k + '.' + (EXT[mimeOf(v)] || 'bin'), new Blob([dataToBytes(v)], { type: mimeOf(v) }));
+  if (r === 'show') select(eidOf(uses[0]));
+  if (r === 'del') { S.media.delete(k); S.dirty = true; renderTop(); renderPanel(); autosave(); }
+  if (r === 'rep') { S._mediaCb = keys => { const nk = keys[0]; if (!nk) return; structural('Файл заменён: ' + k, () => { $$(`[data-m="${k}"]`, S.doc).forEach(e => { e.setAttribute('data-m', nk); const d = S.mediaDims && S.mediaDims[nk]; if (d) { e.setAttribute('width', d.w); e.setAttribute('height', d.h); if (d.poster && e.tagName === 'VIDEO') e.setAttribute('poster', d.poster); } }); $$(`[data-img="${k}"]`, S.doc).forEach(e => e.setAttribute('data-img', nk)); if (S.cfg.seo.ogImage === k) S.cfg.seo.ogImage = nk; }); }; $('#mediaIn').accept = isV ? 'video/mp4,video/webm' : 'image/*'; $('#mediaIn').multiple = false; $('#mediaIn').click(); }
+}
+function uploadFor(m) { const id = eidOf(m), isV = m.tagName === 'VIDEO'; S._mediaCb = keys => { if (keys[0]) applyMedia(M(id), keys[0]); }; $('#mediaIn').accept = isV ? 'video/mp4,video/webm' : 'image/*'; $('#mediaIn').multiple = false; $('#mediaIn').click(); }
+async function addFiles(files, cb) {
+  if (!files.length) return;
+  const keys = [];
+  toast('Обрабатываю ' + files.length + ' файл(ов)…');
+  for (const f of files) {
+    try {
+      const base = (f.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9а-яё_-]+/gi, '-').replace(/[^\w-]/g, '').slice(0, 24) || 'file').replace(/^-+|-+$/g, '') || 'file';
+      let k = base + '_' + Date.now().toString(36).slice(-5); while (S.media.has(k)) k += 'x';
+      let data, dims = null;
+      if (f.type.startsWith('video/')) {
+        if (f.size > 25 * 1048576) toast(`Видео ${f.name} весит ${fmtSize(f.size)} — сайт станет тяжёлым. Лучше до 3–5 МБ.`, 'err', 7000);
+        data = await blobToDataURL(f); dims = await videoMeta(data);
+      } else if (f.type === 'image/svg+xml' || f.type === 'image/gif') {
+        data = await blobToDataURL(f); const im = await loadImg(data); dims = { w: im.naturalWidth || 800, h: im.naturalHeight || 600 };
+      } else {
+        const r = await compressImage(f, S.opts.maxW, S.opts.q); data = r.data; dims = { w: r.w, h: r.h };
+      }
+      S.media.set(k, data); (S.mediaDims = S.mediaDims || {})[k] = dims; keys.push(k);
+    } catch (e) { console.error(e); toast('Не удалось обработать ' + f.name, 'err'); }
+  }
+  S.dirty = true; renderTop(); autosave();
+  toast('Готово: ' + keys.length + ' файл(ов) в медиатеке', 'ok');
+  if (cb) await cb(keys);
+  if (S.tab === 'media') renderPanel();
+}
+const loadImg = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+async function compressImage(file, maxW, q) {
+  const bmp = await createImageBitmap(file);
+  let w = bmp.width, hh = bmp.height; if (w > maxW) { hh = Math.round(hh * maxW / w); w = maxW; }
+  const c = document.createElement('canvas'); c.width = w; c.height = hh; c.getContext('2d').drawImage(bmp, 0, 0, w, hh);
+  const blob = await new Promise(r => c.toBlob(r, 'image/webp', q));
+  return { data: await blobToDataURL(blob), w, h: hh };
+}
+function videoMeta(src) {
+  return new Promise(ok => {
+    const v = document.createElement('video'); v.muted = true; v.preload = 'auto'; v.src = src;
+    v.onloadeddata = () => { v.currentTime = Math.min(.1, v.duration || 0); };
+    v.onseeked = () => { const c = document.createElement('canvas'); const w = Math.min(480, v.videoWidth), hh = Math.round(v.videoHeight * w / v.videoWidth); c.width = w; c.height = hh; c.getContext('2d').drawImage(v, 0, 0, w, hh); ok({ w: v.videoWidth, h: v.videoHeight, poster: c.toDataURL('image/webp', .55) }); };
+    v.onerror = () => ok({ w: 720, h: 1280 });
+    setTimeout(() => ok({ w: v.videoWidth || 720, h: v.videoHeight || 1280 }), 6000);
+  });
+}
+async function pruneMedia() {
+  const u = usage(); const unused = [...S.media.keys()].filter(k => !u.get(k));
+  if (!unused.length) return toast('Неиспользуемых файлов нет');
+  if (!await confirmBox('Удалить неиспользуемые?', `Будет удалено файлов: <b>${unused.length}</b>. Они нигде не показываются на сайте. При сохранении такие файлы и так не попадают в сайт.`, 'Удалить', true)) return;
+  unused.forEach(k => S.media.delete(k)); S.dirty = true; renderTop(); renderPanel(); autosave();
+}
+
+/* ---------- контакты ---------- */
+const CFIELDS = [['phone', 'Телефон', '+7 902 566-97-17'], ['wa', 'WhatsApp — номер цифрами', '79025669717'], ['email', 'E-mail', 'name@mail.ru'], ['tg', 'Telegram консультанта — ник без @', 'irina7797'], ['tgch', 'Telegram-канал — ник без @', 'artikulsale'], ['ig', 'Instagram — ник без @', 'abagur38'], ['person', 'Консультант', 'Имя Фамилия'], ['city', 'Город', 'Иркутск'], ['street', 'Адрес', 'ул. Лызина, 9'], ['floor', 'Этаж / вход', '1 этаж'], ['zip', 'Индекс', '664009'], ['hours', 'Часы работы', 'Пн–Сб 10:00 — 19:00'], ['lat', 'Широта', '52.281705'], ['lon', 'Долгота', '104.324495'], ['ymaps', 'Ссылка на Яндекс Карты', 'https://yandex.ru/maps/…'], ['gis', 'Ссылка на 2ГИС', 'https://go.2gis.com/…']];
+function pContacts(p) {
+  p.append(h('h2', null, 'Контакты'), h('p', { class: 'sub' }, 'Меняются сразу во всех местах сайта: шапка, меню, кнопки, блок контактов, данные для поисковиков.'));
+  const c = S.cfg.contacts, card = h('div', { class: 'card' });
+  const apply = debounce(() => { applyContacts(S.doc); commit('Контакты', { key: 'contacts', rebuild: true, panel: false }); }, 500);
+  for (const [k, l, ph] of CFIELDS) card.append(h('label', { class: 'fld' }, h('span', null, l), h('input', { class: 'in', value: c[k] == null ? '' : c[k], placeholder: ph, oninput: e => { let v = e.target.value.trim(); if (['tg', 'tgch', 'ig'].includes(k)) v = v.replace(/^@/, '').replace(/^https?:\/\/[^/]+\//, '').replace(/\/$/, ''); if (k === 'lat' || k === 'lon') v = v.replace(',', '.'); c[k] = v; apply(); } })));
+  p.append(card, h('p', { class: 'hint' }, 'Подсказка: координаты удобно взять в Яндекс Картах — правый клик по точке → «Что здесь?».'));
+}
+function dms(v, pos, neg) { v = +v; if (!isFinite(v)) return ''; const a = Math.abs(v), d = Math.floor(a), m = Math.floor((a - d) * 60), s = Math.round(((a - d) * 60 - m) * 60); return `${d}°${pad(m)}′${pad(s)}″ ${v >= 0 ? pos : neg}`; }
+function phoneHref(p) { let d = String(p || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '8') d = '7' + d.slice(1); return d ? '+' + d : ''; }
+function applyContacts(doc) {
+  const c = S.cfg.contacts;
+  const T = { phone: c.phone, email: c.email, tg: c.tg ? '@' + c.tg : '', tgch: c.tgch ? '@' + c.tgch : '', ig: c.ig ? '@' + c.ig : '', city: c.city, street: c.street, floor: c.floor, zip: c.zip, hours: c.hours, person: c.person };
+  const H = { phone: c.phone ? 'tel:' + phoneHref(c.phone) : '', email: c.email ? 'mailto:' + c.email : '', tg: c.tg ? 'https://t.me/' + c.tg : '', tgch: c.tgch ? 'https://t.me/' + c.tgch : '', ig: c.ig ? 'https://www.instagram.com/' + c.ig + '/' : '', wa: 'https://wa.me/' + String(c.wa || phoneHref(c.phone)).replace(/\D/g, ''), ymaps: c.ymaps, gis: c.gis };
+  const geo = c.lat !== '' && c.lon !== '' && isFinite(+c.lat) && isFinite(+c.lon);
+  $$('[data-c]', doc).forEach(el => {
+    const k = el.getAttribute('data-c');
+    if (k === 'coord-dms') { if (geo) el.innerHTML = `${dms(c.lat, 'N', 'S')}<i>✦</i>${dms(c.lon, 'E', 'W')}`; }
+    else if (k === 'coord-dec') { if (geo) el.innerHTML = `${(+c.lat).toFixed(4)}° N<i>✦</i>${(+c.lon).toFixed(4)}° E`; }
+    else if (T[k]) el.textContent = T[k];
+  });
+  $$('[data-ch]', doc).forEach(el => { const k = el.getAttribute('data-ch'); if (H[k]) el.setAttribute('href', H[k]); });
+  if (doc === S.doc) assignEids(doc.body);
+}
+
+/* ---------- дизайн ---------- */
+function pDesign(p) {
+  const D = S.cfg.design;
+  p.append(h('h2', null, 'Дизайн'), h('p', { class: 'sub' }, 'Цвета, шрифты, анимации и логотип. Всё применяется к сайту целиком.'));
+  const live = debounce(() => { const w = PV(); B() && B().css('site-vars', varsCSS()); commit('Дизайн', { key: 'design', panel: false }); rebuildSoon(); }, 250);
+  const cols = h('div', { class: 'colors' });
+  for (const [k, l] of COLOR_VARS) cols.append(h('label', { class: 'color' }, h('input', { type: 'color', value: toHex(D.vars[k] || '#000000'), oninput: e => { D.vars[k] = e.target.value; e.target.nextSibling.lastChild.textContent = e.target.value; live(); } }), h('span', null, h('b', null, l), D.vars[k] || '')));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Цвета'), cols, h('button', { class: 'btn sm', style: { marginTop: '10px' }, onclick: () => { D.vars = readVars(new DOMParser().parseFromString('<style id="main-css">' + ($('#main-css', S.doc) || {}).textContent + '</style>', 'text/html')); commit('Цвета по умолчанию', { rebuild: true }); } }, 'Вернуть исходные цвета')));
+  const fsel = (list, cur, key) => h('select', { class: 'in', onchange: e => { const it = list[+e.target.value]; D[key] = it[1]; D[key + 'G'] = it[2]; if (+e.target.value === 0) { D[key] = ''; D[key + 'G'] = ''; } commit('Шрифт', { rebuild: true, panel: false }); } }, list.map((it, i) => h('option', { value: i, selected: (cur || list[0][1]) === it[1] }, it[0] + (it[2] ? ' (Google Fonts)' : ''))));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Шрифты'),
+    h('label', { class: 'fld' }, h('span', null, 'Заголовки (с засечками)'), fsel(SERIFS, D.serif, 'serif')),
+    h('label', { class: 'fld' }, h('span', null, 'Основной текст'), fsel(SANS, D.sans, 'sans')),
+    h('label', { class: 'fld' }, h('span', null, 'Размер заголовков', h('em', null, Math.round((D.hs || 1) * 100) + '%')), h('input', { type: 'range', min: .7, max: 1.3, step: .01, value: D.hs || 1, style: { width: '100%' }, oninput: e => { D.hs = +e.target.value; e.target.previousSibling.lastChild.textContent = Math.round(D.hs * 100) + '%'; live(); } })),
+    h('label', { class: 'fld' }, h('span', null, 'Размер основного текста', h('em', null, (D.bodySize || 16) + ' px')), h('input', { type: 'range', min: 14, max: 19, step: .5, value: D.bodySize || 16, style: { width: '100%' }, oninput: e => { D.bodySize = +e.target.value; e.target.previousSibling.lastChild.textContent = D.bodySize + ' px'; live(); } })),
+    h('p', { class: 'hint' }, 'Шрифты Google Fonts подгружаются из интернета; встроенные работают всегда.')));
+  const tog = (k, l, d) => h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: D[k] !== false, onchange: e => { D[k] = e.target.checked; commit('Дизайн: ' + l, { rebuild: true, panel: false }); } }), h('i'), h('div', null, h('div', null, l), h('div', { class: 'hint' }, d)));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Эффекты'),
+    tog('motion', 'Анимации при прокрутке', 'Закрепляемые сцены, появления, параллакс'),
+    tog('smooth', 'Плавная прокрутка', 'Инерционная прокрутка колесом мыши'),
+    tog('preloader', 'Заставка при загрузке', 'Рисующийся абажур и герб'),
+    tog('cursor', 'Фирменный курсор', 'Кольцо и тёплый свет за курсором'),
+    tog('grain', 'Зерно плёнки', 'Едва заметная фактура поверх сайта'),
+    h('label', { class: 'fld', style: { marginTop: '8px' } }, h('span', null, 'Инерция прокрутки', h('em', null, (D.smoothDuration || 1.25) + ' с')), h('input', { type: 'range', min: .6, max: 2, step: .05, value: D.smoothDuration || 1.25, style: { width: '100%' }, oninput: e => { D.smoothDuration = +e.target.value; e.target.previousSibling.lastChild.textContent = D.smoothDuration + ' с'; }, onchange: () => commit('Инерция прокрутки', { rebuild: true, panel: false }) }))));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Логотип и значок'),
+    h('p', { class: 'hint', style: { marginBottom: '10px' } }, 'Логотип — чёрный рисунок на белом или PNG с прозрачностью. Сайт сам перекрасит его под фон.'),
+    h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => pickFile('image/*', setLogo) }, 'Заменить логотип'), h('button', { class: 'btn sm', onclick: () => pickFile('image/*', setFavicon) }, 'Значок вкладки (favicon)'))));
+}
+function toHex(v) { v = String(v).trim(); if (/^#[0-9a-f]{6}$/i.test(v)) return v; if (/^#[0-9a-f]{3}$/i.test(v)) return '#' + v.slice(1).split('').map(c => c + c).join(''); const c = document.createElement('canvas').getContext('2d'); c.fillStyle = v; return c.fillStyle.startsWith('#') ? c.fillStyle : '#000000'; }
+function varsCSS() {
+  const D = S.cfg.design; let r = '';
+  for (const [k, v] of Object.entries(D.vars || {})) if (v) r += `--${k}:${v};`;
+  if (D.serif) r += `--serif:${D.serif};`; if (D.sans) r += `--sans:${D.sans};`; if (D.hs && D.hs != 1) r += `--hs:${D.hs};`;
+  let css = r ? `:root{${r}}` : '';
+  if (D.bodySize && D.bodySize != 16) css += `body{font-size:${D.bodySize}px}`;
+  return css;
+}
+function pickFile(accept, fn) { const i = h('input', { type: 'file', accept }); i.onchange = () => i.files[0] && fn(i.files[0]); i.click(); }
+async function setLogo(f) {
+  const im = await loadImg(await blobToDataURL(f));
+  const mk = (sy, sh, w) => { const c = document.createElement('canvas'); const hh = Math.round(sh * w / im.naturalWidth); c.width = w; c.height = hh; const g = c.getContext('2d'); g.drawImage(im, 0, sy, im.naturalWidth, sh, 0, 0, w, hh); const d = g.getImageData(0, 0, w, hh), px = d.data; let alpha = false; for (let i = 3; i < px.length; i += 4) if (px[i] < 250) { alpha = true; break; } for (let i = 0; i < px.length; i += 4) { const l = .299 * px[i] + .587 * px[i + 1] + .114 * px[i + 2]; const a = alpha ? px[i + 3] : 255 - l; px[i] = px[i + 1] = px[i + 2] = 0; px[i + 3] = a; } g.putImageData(d, 0, 0); return c.toDataURL('image/png'); };
+  const logo = mk(0, im.naturalHeight, 900), orn = mk(0, Math.round(im.naturalHeight * .22), 640);
+  S.frozen.logo = `:root{--logo:url("${logo}");--orn:url("${orn}");}`;
+  S.dirty = true; renderTop(); buildPreview(true); autosave(); toast('Логотип заменён', 'ok');
+}
+async function setFavicon(f) { const im = await loadImg(await blobToDataURL(f)); const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const s = Math.min(im.naturalWidth, im.naturalHeight); g.drawImage(im, (im.naturalWidth - s) / 2, (im.naturalHeight - s) / 2, s, s, 0, 0, 64, 64); S.cfg.design.favicon = c.toDataURL('image/png'); commit('Значок вкладки'); toast('Значок обновлён', 'ok'); }
+
+/* ---------- SEO ---------- */
+function pSeo(p) {
+  const s = S.cfg.seo;
+  const upd = debounce(() => { commit('SEO', { key: 'seo', panel: false }); renderChecks(); serp(); }, 400);
+  const f = (k, l, hint, o = {}) => { const inp = h(o.ta ? 'textarea' : 'input', { class: o.ta ? 'ta txt' : 'in', rows: o.ta ? (o.rows || 3) : null, value: o.ta ? null : (s[k] || ''), placeholder: o.ph || '', oninput: e => { s[k] = e.target.value; if (o.max) cnt.textContent = e.target.value.length + ' / ' + o.max; upd(); } }); if (o.ta) inp.value = s[k] || ''; const cnt = o.max ? h('em', null, (s[k] || '').length + ' / ' + o.max) : (hint ? h('em', null, hint) : null); return h('label', { class: 'fld' }, h('span', null, l, cnt), inp); };
+  p.append(h('h2', null, 'SEO и нейропоиск'), h('p', { class: 'sub' }, 'Как сайт выглядит в Яндексе, Google, соцсетях и ответах нейросетей (Алиса, ChatGPT, Perplexity).'));
+  const sp = h('div', { class: 'serp' }); p.append(sp);
+  function serp() { const dm = (s.domain || 'artikul.ru').replace(/^https?:\/\//, '').replace(/\/$/, ''); sp.innerHTML = `<div class="u">${esc(dm)}</div><div class="t">${esc(s.title || 'Заголовок страницы')}</div><div class="d">${esc((s.description || '').slice(0, 165))}${(s.description || '').length > 165 ? '…' : ''}</div>`; }
+  serp();
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Поисковая выдача'),
+    f('title', 'Заголовок страницы (title)', '', { max: 70 }), f('description', 'Описание (description)', '', { ta: true, max: 170 }), f('keywords', 'Ключевые слова через запятую', 'для Яндекса', { ta: true, rows: 2 }),
+    f('domain', 'Адрес сайта', 'нужен для карты сайта и превью в соцсетях', { ph: 'https://artikul-svet.ru' }),
+    h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: s.index !== false, onchange: e => { s.index = e.target.checked; upd(); } }), h('i'), h('span', null, 'Разрешить поисковикам показывать сайт'))));
+  const ogSel = h('select', { class: 'in', onchange: e => { s.ogImage = e.target.value; upd(); } }, [...S.media.keys()].filter(k => !isVideoData(S.media.get(k))).map(k => h('option', { value: k, selected: k === s.ogImage }, k)));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Превью в соцсетях и мессенджерах'), f('ogTitle', 'Заголовок карточки', 'если пусто — как title'), f('ogDesc', 'Текст карточки', 'если пусто — как description', { ta: true, rows: 2 }),
+    h('label', { class: 'fld' }, h('span', null, 'Картинка карточки', h('em', null, 'сохраняется как og.jpg')), ogSel),
+    h('button', { class: 'btn sm', onclick: async () => { const b = await ogBlob(); b && download('og.jpg', b); } }, 'Скачать og.jpg')));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Компания для поисковиков и нейросетей'), f('orgName', 'Название'), f('altName', 'Другое написание', 'например, по-русски'), f('founding', 'Год основания')));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Аналитика и вебмастера'), f('metrika', 'Яндекс Метрика — номер счётчика', '', { ph: '12345678' }), f('ga', 'Google Analytics — ID', '', { ph: 'G-XXXXXXX' }), f('yandexVerif', 'Яндекс Вебмастер — код подтверждения', 'content из meta-тега'), f('googleVerif', 'Google Search Console — код подтверждения')));
+  const llmsTa = h('textarea', { class: 'ta', rows: 10, placeholder: 'Пусто — соберётся автоматически из текстов сайта', oninput: e => { s.llms = e.target.value; upd(); } }); llmsTa.value = s.llms || '';
+  p.append(h('div', { class: 'card' }, h('h3', null, 'llms.txt — паспорт сайта для нейросетей'), h('p', { class: 'hint', style: { marginBottom: '8px' } }, 'Короткая справка о студии, которую читают ChatGPT, Claude, Perplexity и другие ИИ-поисковики. По умолчанию собирается сама из контактов, разделов, товаров и вопросов.'), llmsTa,
+    h('div', { class: 'row', style: { marginTop: '8px' } }, h('button', { class: 'btn sm', onclick: () => { llmsTa.value = s.llms = buildLlms(finalDoc()); upd(); } }, 'Собрать из сайта'), h('button', { class: 'btn sm', onclick: () => { s.llms = ''; llmsTa.value = ''; upd(); } }, 'Авто'), h('button', { class: 'btn sm', onclick: () => download('llms.txt', new Blob([buildLlms(finalDoc())], { type: 'text/plain' })) }, 'Скачать'))));
+  p.append(h('div', { class: 'card' }, h('h3', null, 'Служебные файлы'), h('p', { class: 'hint', style: { marginBottom: '8px' } }, 'Попадают в архив для хостинга и на сервер сами. Здесь — если нужно загрузить вручную.'),
+    h('div', { class: 'row' }, h('button', { class: 'btn sm', onclick: () => download('robots.txt', new Blob([buildRobots()], { type: 'text/plain' })) }, 'robots.txt'), h('button', { class: 'btn sm', disabled: !s.domain, onclick: () => download('sitemap.xml', new Blob([buildSitemap()], { type: 'application/xml' })) }, 'sitemap.xml'))));
+  const ch = h('div', { class: 'card' }); p.append(ch);
+  function renderChecks() { ch.innerHTML = ''; ch.append(h('h3', null, 'Проверка')); for (const [st, t, act] of seoChecks()) ch.append(h('div', { class: 'check ' + st }, h('i', null, st === 'ok' ? '✓' : '!'), h('div', null, t, act ? [' ', h('button', { onclick: act[1] }, act[0])] : null))); }
+  renderChecks();
+}
+function seoChecks() {
+  const s = S.cfg.seo, out = [], doc = S.doc;
+  const tl = (s.title || '').length, dl = (s.description || '').length;
+  out.push([tl >= 30 && tl <= 70 ? 'ok' : 'warn', `Заголовок: ${tl} символов (лучше 30–70)`]);
+  out.push([dl >= 110 && dl <= 170 ? 'ok' : 'warn', `Описание: ${dl} символов (лучше 110–170)`]);
+  const h1 = $$('h1', doc).filter(e => !secOf(e) || !secOf(e).hasAttribute('data-off')).length;
+  out.push([h1 === 1 ? 'ok' : 'bad', h1 === 1 ? 'Главный заголовок H1 — один, как и нужно' : `Заголовков H1: ${h1} (нужен ровно один)`]);
+  const noAlt = $$('img[data-m]', doc).filter(i => !i.closest('.pill') && !(i.getAttribute('alt') || '').trim());
+  out.push([noAlt.length ? 'warn' : 'ok', noAlt.length ? `Фото без описания: ${noAlt.length}` : 'У всех фото есть описания', noAlt.length ? ['Показать', () => select(eidOf(noAlt[0]))] : null]);
+  out.push([s.domain ? 'ok' : 'warn', s.domain ? 'Адрес сайта указан' : 'Не указан адрес сайта — без него не будет карты сайта и картинки в соцсетях']);
+  out.push([faqOf(doc).length >= 3 ? 'ok' : 'warn', `Вопросов-ответов на странице: ${faqOf(doc).length} (их читают нейросети и Яндекс)`]);
+  out.push([productsOf(doc).length ? 'ok' : 'warn', `Товаров в разметке Schema.org: ${productsOf(doc).length}`]);
+  const c = S.cfg.contacts; out.push([c.phone && c.street && c.city ? 'ok' : 'bad', c.phone && c.street ? 'Адрес и телефон заполнены (карточка организации)' : 'Заполните адрес и телефон во вкладке «Контакты»']);
+  out.push([s.metrika ? 'ok' : 'warn', s.metrika ? 'Яндекс Метрика подключена' : 'Яндекс Метрика не подключена — не будет статистики посещений']);
+  out.push([s.index !== false ? 'ok' : 'bad', s.index !== false ? 'Сайт открыт для поисковиков' : 'Сайт закрыт от поисковиков (noindex)']);
+  return out;
+}
+
+/* ---------- код ---------- */
+function pCode(p) {
+  const C = S.cfg.code;
+  p.append(h('h2', null, 'Код'), h('p', { class: 'sub' }, 'Для тех, кто разбирается: свои стили, счётчики, виджеты, чаты.'));
+  const ta = (k, l, hint, rows) => { const t = h('textarea', { class: 'ta', rows, oninput: debounce(e => { C[k] = e.target.value; commit('Код: ' + l, { key: 'code' + k, panel: false }); if (k === 'css') B() && B().css('custom-css', C.css); }, 600) }); t.value = C[k] || ''; return h('div', { class: 'card' }, h('h3', null, l), h('p', { class: 'hint', style: { marginBottom: '8px' } }, hint), t); };
+  p.append(ta('css', 'Свои стили CSS', 'Добавляются поверх стилей сайта и сразу видны в превью.', 8));
+  p.append(ta('head', 'HTML в <head>', 'Мета-теги, счётчики, пиксели. Попадает в сохранённый сайт (в превью не запускается).', 6));
+  p.append(ta('body', 'HTML в конце страницы', 'Виджеты, онлайн-чаты, скрипты. Попадает в сохранённый сайт.', 6));
+  const main = $('#main-css', S.doc);
+  if (main) { const t = h('textarea', { class: 'ta', rows: 14 }); t.value = main.textContent; p.append(h('div', { class: 'card' }, h('h3', null, 'Основные стили сайта'), h('p', { class: 'hint', style: { marginBottom: '8px' } }, 'Вся вёрстка сайта. Меняйте осторожно — отменить можно в «Истории».'), t, h('button', { class: 'btn sm', style: { marginTop: '8px' }, onclick: () => { main.textContent = t.value; commit('Основные стили', { rebuild: true }); } }, 'Применить стили'))); }
+  const rt = h('textarea', { class: 'ta', rows: 10 }); rt.value = S.frozen.runtime || '';
+  p.append(h('div', { class: 'card' }, h('details', null, h('summary', { style: { cursor: 'pointer', color: 'var(--muted)' } }, 'Скрипт анимаций (только для разработчика)'), rt, h('button', { class: 'btn sm danger', style: { marginTop: '8px' }, onclick: () => { S.frozen.runtime = rt.value; S.dirty = true; renderTop(); buildPreview(true); autosave(); toast('Скрипт обновлён'); } }, 'Применить скрипт'))));
+}
+
+/* ---------- история и справка ---------- */
+function pHistory(p) {
+  p.append(h('h2', null, 'История'), h('p', { class: 'sub' }, 'Каждая правка сохраняется. Нажмите на любую точку, чтобы вернуться к ней. Черновик хранится в этом браузере, пока вы не сохраните сайт.'));
+  const l = h('div', { class: 'list' });
+  S.hist.map((s, i) => [s, i]).reverse().forEach(([s, i]) => l.append(h('div', { class: 'li' + (i === S.hist.length - 1 ? ' sel' : '') }, h('span', { class: 'num' }, i + 1), h('button', { class: 'nm', onclick: () => goHistory(i) }, s.label, h('small', null, new Date(s.t).toLocaleTimeString('ru-RU'))))));
+  if (S.fut.length) l.prepend(h('p', { class: 'hint' }, 'Отменённых шагов: ' + S.fut.length + ' (вернуть — Ctrl+Shift+Z)'));
+  p.append(l);
+  if (S.server && S.server.enabled) p.append(h('div', { class: 'card', style: { marginTop: '16px' } }, h('h3', null, 'Резервные копии на сервере'), h('p', { class: 'hint', style: { marginBottom: '8px' } }, 'Перед каждым сохранением сервер копирует прежнюю версию сайта.'), h('button', { class: 'btn sm', onclick: showBackups }, 'Показать копии')));
+}
+function pHelp(p) {
+  p.append(h('div', { class: 'help', html: `<h2>Как пользоваться</h2>
+<h4>Править текст</h4><p>Дважды нажмите на текст в превью и печатайте. <span class="kbd">Enter</span> — готово, <span class="kbd">Esc</span> — отмена, <span class="kbd">Shift+Enter</span> — новая строка. Курсив и ссылки — во вкладке «Элемент».</p>
+<h4>Заменить фото или видео</h4><p>Нажмите на фото → «Загрузить новый файл». Фото само сожмётся. Не забудьте описание: его читают Яндекс и Google.</p>
+<h4>Списки и карточки</h4><p>Коллекции, товары, вопросы, услуги, шаги — выберите карточку и нажмите «Дублировать», «Выше», «Ниже», «Скрыть» или «Удалить».</p>
+<h4>Разделы</h4><p>Во вкладке «Разделы» — порядок, скрытие, копии и новые разделы из шаблонов. После изменений нажмите «Собрать меню из разделов».</p>
+<h4>Контакты</h4><p>Телефон, адрес, мессенджеры меняются в одном месте и сразу везде.</p>
+<h4>Сохранить</h4><ul><li><b>Скачать index.html</b> — один файл со всем внутри. Его можно открыть двойным щелчком или загрузить на любой хостинг.</li><li><b>Архив для хостинга</b> — страница и фото отдельно: сайт открывается быстрее, лучше для SEO. Распакуйте архив в корень сайта.</li><li><b>Сохранить на сайт</b> — если админка открыта на хостинге и в api.php задан пароль: изменения записываются сразу, прежняя версия остаётся в резервной копии.</li></ul>
+<h4>Отменить</h4><p><span class="kbd">Ctrl+Z</span> — отменить, <span class="kbd">Ctrl+Shift+Z</span> — вернуть, <span class="kbd">Ctrl+S</span> — сохранить. Вкладка «История» — откат к любой точке.</p>
+<h4>Если что-то пошло не так</h4><p>Несохранённые правки живут в браузере: при следующем открытии админка предложит продолжить. Исходный файл сайта не меняется, пока вы сами его не сохраните.</p>` }));
+}
+
+/* ---------- сборка итогового сайта ---------- */
+function renumber(doc) {
+  const secs = $$('main > section', doc).filter(s => !s.hasAttribute('data-off'));
+  secs.forEach((s, i) => $$('[data-num]', s).forEach(e => e.textContent = pad(i + 1)));
+  $$('[data-idx]', doc).forEach(e => { const it = e.closest('[data-item]'); if (!it || !it.parentElement) return; const sib = Array.from(it.parentElement.children).filter(c => c.hasAttribute('data-item') && !c.hasAttribute('data-off')); const i = sib.indexOf(it); if (i >= 0) e.textContent = pad(i + 1); });
+  $$('section.bunny', doc).forEach(s => { const t = $('[data-total]', s); if (t) t.textContent = pad($$('.bs', s).filter(b => !b.hasAttribute('data-off')).length); });
+}
+function setMeta(doc, attr, key, content) { if (!content) return; const m = doc.createElement(key === 'canonical' ? 'link' : 'meta'); if (key === 'canonical') { m.setAttribute('rel', 'canonical'); m.setAttribute('href', content); } else { m.setAttribute(attr, key); m.setAttribute('content', content); } m.setAttribute('data-seo', ''); doc.head.append(m); }
+function siteURL() { const d = (S.cfg.seo.domain || '').trim().replace(/\/+$/, ''); return d ? (/^https?:\/\//.test(d) ? d : 'https://' + d) + '/' : ''; }
+function applyHead(doc, o = {}) {
+  const s = S.cfg.seo, c = S.cfg.contacts, D = S.cfg.design, url = siteURL();
+  applyContacts(doc); renumber(doc);
+  doc.title = s.title || doc.title;
+  $$('[data-seo]', doc).forEach(e => e.remove());
+  setMeta(doc, 'name', 'description', s.description); setMeta(doc, 'name', 'keywords', s.keywords);
+  setMeta(doc, 'name', 'robots', s.index !== false ? 'index, follow, max-image-preview:large' : 'noindex, nofollow');
+  if (c.city) { setMeta(doc, 'name', 'geo.region', 'RU-IRK'); setMeta(doc, 'name', 'geo.placename', c.city); }
+  if (c.lat && c.lon) { setMeta(doc, 'name', 'geo.position', c.lat + ';' + c.lon); setMeta(doc, 'name', 'ICBM', c.lat + ', ' + c.lon); }
+  if (url) setMeta(doc, '', 'canonical', url);
+  for (const [k, v] of [['og:type', 'website'], ['og:locale', 'ru_RU'], ['og:site_name', s.orgName || 'ARTIKUL'], ['og:title', s.ogTitle || s.title], ['og:description', s.ogDesc || s.description], ['og:url', url], ['og:image', url && s.ogImage ? url + 'og.jpg' : '']]) setMeta(doc, 'property', k, v);
+  setMeta(doc, 'name', 'twitter:card', 'summary_large_image');
+  setMeta(doc, 'name', 'yandex-verification', s.yandexVerif); setMeta(doc, 'name', 'google-site-verification', s.googleVerif);
+  const tc = $('meta[name=theme-color]', doc); if (tc && D.vars.ink) tc.setAttribute('content', D.vars.ink);
+  if (D.favicon) { const ic = $('link[rel=icon]', doc); if (ic) ic.setAttribute('href', D.favicon); }
+  const cfgEl = $('#site-config', doc); if (cfgEl) cfgEl.textContent = jsonScript(S.cfg);
+  const sv = $('#site-vars', doc); if (sv) sv.textContent = varsCSS();
+  const cc = $('#custom-css', doc); if (cc) cc.textContent = S.cfg.code.css || '';
+  const fonts = [D.serifG, D.sansG].filter(Boolean);
+  if (fonts.length) { const l = doc.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?' + fonts.map(f => 'family=' + f).join('&') + '&display=swap'; l.setAttribute('data-gen', 'gfonts'); doc.head.append(l); }
+  if (o.preview) return;
+  const ld = $('#ld', doc); if (ld) ld.textContent = jsonScript(buildLd(doc, o.mediaURL));
+  if (s.metrika && /^\d+$/.test(s.metrika.trim())) addRaw(doc, 'head', 'gen', `<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${s.metrika.trim()},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});<\/script><noscript><div><img src="https://mc.yandex.ru/watch/${s.metrika.trim()}" style="position:absolute;left:-9999px" alt=""></div></noscript>`);
+  if (s.ga && /^G-[A-Z0-9]+$/i.test(s.ga.trim())) addRaw(doc, 'head', 'gen', `<script async src="https://www.googletagmanager.com/gtag/js?id=${s.ga.trim()}"><\/script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${s.ga.trim()}');<\/script>`);
+  if (S.cfg.code.head) addRaw(doc, 'head', 'custom', S.cfg.code.head);
+  if (S.cfg.code.body) addRaw(doc, 'body', 'custom', S.cfg.code.body);
+}
+function addRaw(doc, where, mark, html) {
+  const t = doc.createElement('template'); t.innerHTML = html;
+  for (const n of Array.from(t.content.childNodes)) {
+    let node = n;
+    if (n.nodeName === 'SCRIPT') { node = doc.createElement('script'); for (const a of Array.from(n.attributes)) node.setAttribute(a.name, a.value); node.textContent = n.textContent; }
+    if (node.nodeType === 1) node.setAttribute(mark === 'gen' ? 'data-gen' : 'data-custom', where);
+    else if (node.nodeType === 3 && !node.textContent.trim()) continue;
+    (where === 'head' ? doc.head : doc.body).append(node);
+  }
+}
+const jsonScript = o => JSON.stringify(o).replace(/</g, '\\u003c');
+function finalDoc() { const doc = S.doc.cloneNode(true); $$('[data-eid]', doc).forEach(e => e.removeAttribute('data-eid')); applyContacts(doc); renumber(doc); return doc; }
+function visSecs(doc) { return $$('main > section', doc).filter(s => !s.hasAttribute('data-off')); }
+function txtSep(el) { const out = []; (function w(n) { for (const k of n.childNodes) { if (k.nodeType === 3) out.push(k.textContent); else if (k.nodeType === 1 && !['SCRIPT', 'STYLE'].includes(k.tagName)) { out.push(' '); w(k); } } })(el); return norm(out.join('')); }
+function faqOf(doc) { const r = []; visSecs(doc).forEach(s => $$('[data-faq] details', s).forEach(d => { if (d.hasAttribute('data-off')) return; const q = $('summary', d), a = $('.qa__a', d); if (q && a && norm(q.textContent) && norm(a.textContent)) r.push([norm(q.textContent), norm(a.textContent)]); })); return r; }
+function productsOf(doc) {
+  const r = []; visSecs(doc).forEach(s => $$('[data-product]', s).forEach(p => {
+    if (p.hasAttribute('data-off')) return;
+    const pn = $('[data-pn]', p), pd = $('[data-pd]', p), kind = norm(p.getAttribute('data-product'));
+    const name = pn ? txtSep(pn) : '', desc = pd ? norm(pd.textContent) : '', im = $('img[data-m]', p);
+    r.push(kind ? { name: kind + ' — ' + name, description: desc, img: im && im.getAttribute('data-m') } : { name: (name + ' ' + desc).trim(), description: '', img: im && im.getAttribute('data-m') });
+  })); return r;
+}
+function clean(v) { if (Array.isArray(v)) return v.filter(x => x != null && x !== '' && !(Array.isArray(x) && !x.length)).map(clean); if (v && typeof v === 'object') { const o = {}; for (const [k, x] of Object.entries(v)) { if (x == null || x === '' || Array.isArray(x) && !x.length || (typeof x === 'object' && !Array.isArray(x) && !Object.keys(x).length)) continue; o[k] = clean(x); } return o; } return v; }
+function buildLd(doc, mediaURL) {
+  const c = S.cfg.contacts, s = S.cfg.seo, url = siteURL(), oid = url + '#org';
+  const lat = parseFloat(c.lat), lon = parseFloat(c.lon);
+  const org = { '@type': 'Store', '@id': oid, name: s.orgName || 'ARTIKUL', alternateName: s.altName, description: s.description, foundingDate: s.founding, telephone: c.phone, email: c.email,
+    address: { '@type': 'PostalAddress', streetAddress: c.street + (c.floor ? ', ' + c.floor : ''), addressLocality: c.city, postalCode: c.zip, addressCountry: 'RU' },
+    geo: isFinite(lat) && isFinite(lon) ? { '@type': 'GeoCoordinates', latitude: lat, longitude: lon } : null, hasMap: c.ymaps,
+    sameAs: [c.tgch ? 'https://t.me/' + c.tgch : '', c.ig ? 'https://www.instagram.com/' + c.ig + '/' : ''],
+    contactPoint: { '@type': 'ContactPoint', telephone: c.phone, contactType: 'customer service', availableLanguage: 'ru' },
+    knowsAbout: ['авторские светильники', 'абажуры ручной работы', 'линейные светильники из алюминиевого профиля', 'парковое освещение', 'светодизайн', 'расчёт освещения'] };
+  if (url) { org.url = url; if (s.ogImage) org.image = url + 'og.jpg'; }
+  const graph = [org, { '@type': 'WebSite', '@id': url + '#website', name: s.orgName || 'ARTIKUL', inLanguage: 'ru-RU', publisher: { '@id': oid }, url }];
+  const faq = faqOf(doc); if (faq.length) graph.push({ '@type': 'FAQPage', '@id': url + '#faq', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
+  const pr = productsOf(doc); if (pr.length) graph.push({ '@type': 'ItemList', '@id': url + '#catalog', name: 'Светильники ' + (s.orgName || 'ARTIKUL'), itemListElement: pr.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: Object.assign({ '@type': 'Product', name: p.name, brand: { '@id': oid } }, p.description ? { description: p.description } : {}, url && mediaURL && p.img && mediaURL(p.img) ? { image: url + mediaURL(p.img) } : {}) })) });
+  return { '@context': 'https://schema.org', '@graph': clean(graph) };
+}
+function buildRobots() { const url = siteURL(); let r = ''; for (const ua of ['*', 'Yandex', 'Googlebot', 'GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'YandexAdditional']) r += `User-agent: ${ua}\nAllow: /\nDisallow: /admin.html\nDisallow: /api.php\nDisallow: /backups/\n\n`; if (url) r += 'Sitemap: ' + url + 'sitemap.xml\n'; return r.trim() + '\n'; }
+function buildSitemap() { return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${esc(siteURL())}</loc><lastmod>${new Date().toISOString().slice(0, 10)}</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>\n</urlset>\n`; }
+function buildLlms(doc) {
+  const s = S.cfg.seo; if ((s.llms || '').trim()) return s.llms.trim() + '\n';
+  const c = S.cfg.contacts, url = siteURL(), about = $('.faq__about', doc);
+  const L = ['# ' + (s.orgName || 'ARTIKUL'), '', '> ' + (about ? norm(about.textContent) : s.description), '', '## Контакты', `- Адрес: ${c.city}, ${c.street}${c.floor ? ', ' + c.floor : ''}${c.zip ? ' (' + c.zip + ')' : ''}`, '- Часы работы: ' + c.hours, '- Телефон: ' + c.phone, '- E-mail: ' + c.email];
+  if (c.tg) L.push(`- Telegram (консультант ${c.person}): https://t.me/${c.tg}`); if (c.tgch) L.push('- Telegram-канал, наличие и предложения: https://t.me/' + c.tgch);
+  if (c.ig) L.push(`- Instagram*: https://www.instagram.com/${c.ig}/ (*принадлежит Meta, признанной экстремистской и запрещённой в РФ)`);
+  if (c.ymaps) L.push('- Яндекс Карты: ' + c.ymaps); if (c.gis) L.push('- 2ГИС: ' + c.gis);
+  L.push('', '## Разделы сайта');
+  visSecs(doc).forEach(sec => { const nm = sec.getAttribute('data-name') || sec.getAttribute('data-title') || ''; const lead = $('.lead,.faq__about,.hero__lead', sec); const link = sec.id ? url + '#' + sec.id : url; L.push('- ' + (link ? `[${nm}](${link})` : nm) + (lead && norm(lead.textContent) ? ': ' + norm(lead.textContent) : '')); });
+  const pr = productsOf(doc); if (pr.length) { L.push('', '## Продукция'); pr.forEach(p => L.push('- ' + p.name + (p.description ? ': ' + p.description : ''))); }
+  const fq = faqOf(doc); if (fq.length) { L.push('', '## Вопросы и ответы'); fq.forEach(([q, a]) => L.push('', '### ' + q, a)); }
+  return L.join('\n').trim() + '\n';
+}
+async function ogBlob() {
+  const d = S.media.get(S.cfg.seo.ogImage); if (!d || isVideoData(d)) return null;
+  const im = await loadImg(d); const c = document.createElement('canvas'); c.width = 1200; c.height = 630; const g = c.getContext('2d');
+  const sc = Math.max(1200 / im.naturalWidth, 630 / im.naturalHeight), w = im.naturalWidth * sc, hh = im.naturalHeight * sc;
+  g.drawImage(im, (1200 - w) / 2, Math.min(0, (630 - hh) * .3), w, hh);
+  return new Promise(r => c.toBlob(r, 'image/jpeg', .86));
+}
+function usedKeys(doc) { const u = new Set(); $$('[data-m]', doc).forEach(e => u.add(e.getAttribute('data-m'))); $$('[data-img]', doc).forEach(e => u.add(e.getAttribute('data-img'))); return [...u].filter(k => S.media.has(k)); }
+async function buildFinal(mode) {
+  const doc = S.doc.cloneNode(true);
+  $$('[data-eid]', doc).forEach(e => e.removeAttribute('data-eid'));
+  const keys = usedKeys(doc), files = [];
+  const path = k => 'media/' + k + '.' + (EXT[mimeOf(S.media.get(k))] || 'bin');
+  applyHead(doc, { mediaURL: mode === 'external' ? path : null });
+  let html;
+  if (mode === 'external') {
+    const map = {}; keys.forEach(k => { map[k] = path(k); files.push({ name: path(k), data: dataToBytes(S.media.get(k)) }); });
+    const hero = $('main > section.hero:not([data-off]) .hero__img', doc);
+    $$('img[data-m]', doc).forEach(im => { const k = im.getAttribute('data-m'); if (!map[k]) return; im.setAttribute('src', map[k]); if (im !== hero) im.setAttribute('loading', 'lazy'); im.setAttribute('decoding', 'async'); });
+    const mm = doc.createElement('script'); mm.type = 'application/json'; mm.id = 'media-map'; mm.textContent = jsonScript(map);
+    const lib = $('script[data-frozen^="lib-"]', doc) || $('script[data-frozen="runtime"]', doc); lib.before(mm);
+    html = restoreFrozen(serialize(doc));
+  } else {
+    html = restoreFrozen(serialize(doc));
+    const blocks = keys.map(k => `<script type="text/plain" id="m-${k}">${S.media.get(k)}<\/script>`).join('\n') + '\n';
+    const i = html.search(/<script data-frozen="lib-|<script data-frozen="runtime"/);
+    html = html.slice(0, i) + blocks + html.slice(i);
+  }
+  return { html, files };
+}
+async function seoFiles() {
+  const doc = finalDoc(), f = [{ name: 'robots.txt', data: new TextEncoder().encode(buildRobots()) }, { name: 'llms.txt', data: new TextEncoder().encode(buildLlms(doc)) }];
+  if (siteURL()) f.push({ name: 'sitemap.xml', data: new TextEncoder().encode(buildSitemap()) });
+  const og = await ogBlob(); if (og) f.push({ name: 'og.jpg', data: new Uint8Array(await og.arrayBuffer()) });
+  return f;
+}
+function markSaved(how) { S.dirty = false; S.savedAt = Date.now(); renderTop(); idb.set('draft', null); toast(how, 'ok', 5000); }
+async function saveFile() {
+  const { html } = await buildFinal('inline');
+  download('index.html', new Blob([html], { type: 'text/html' }));
+  markSaved('Файл index.html скачан (' + fmtSize(html.length) + '). Замените им старый файл сайта.');
+}
+async function saveZip() {
+  toast('Собираю архив…');
+  const { html, files } = await buildFinal('external');
+  const enc = new TextEncoder();
+  const all = [{ name: 'index.html', data: enc.encode(html) }, ...files, ...(await seoFiles()), { name: 'admin.html', data: enc.encode(ADMIN_SRC) }];
+  if (API_PHP) all.push({ name: 'api.php', data: enc.encode(API_PHP) });
+  download('artikul-site.zip', zip(all));
+  markSaved('Архив скачан: распакуйте его в корень сайта на хостинге.');
+}
+/* сохранение на сервер через api.php */
+async function api(action, params = {}, body = null) {
+  const r = await fetch('api.php?' + new URLSearchParams(Object.assign({ action }, params)), { method: 'POST', headers: { 'X-Admin-Password': encodeURIComponent(S.pass) }, body });
+  let j = null; try { j = await r.json(); } catch (e) { throw new Error('Сервер ответил неожиданно (код ' + r.status + '). Проверьте, что на хостинге включён PHP.'); }
+  if (!r.ok || !j.ok) { const e = new Error(j && j.error || 'Ошибка ' + r.status); e.code = r.status; throw e; }
+  return j;
+}
+async function putFile(name, data, onp) {
+  const blob = data instanceof Blob ? data : new Blob([data]), CH = 2 * 1048576, n = Math.max(1, Math.ceil(blob.size / CH));
+  for (let i = 0; i < n; i++) { await api('put', { name, n: i, last: i === n - 1 ? 1 : 0 }, blob.slice(i * CH, (i + 1) * CH)); onp && onp(); }
+}
+async function askPass() {
+  if (S.pass) return true;
+  const i = h('input', { class: 'in', type: 'password', autocomplete: 'current-password', placeholder: 'Пароль из api.php' });
+  const v = await modal('Пароль', h('div', null, h('p', { class: 'hint', style: { marginBottom: '10px' } }, 'Тот, что вписан в файл api.php на хостинге. Он запомнится до закрытия вкладки.'), i), [{ label: 'Отмена', value: null }, { label: 'Войти', pri: true, get: () => i.value }]);
+  if (!v) return false;
+  S.pass = v;
+  try { await api('auth'); return true; } catch (e) { S.pass = ''; toast(e.message, 'err', 6000); return false; }
+}
+async function saveServer() {
+  if (!S.server || !S.server.enabled) return toast('Сохранение на сервер выключено: впишите пароль в api.php', 'err', 6000);
+  if (!await askPass()) return;
+  const pb = h('i'), txt = h('p', { class: 'hint' }, 'Готовлю файлы…');
+  const bg = h('div', { class: 'mod-bg' }, h('div', { class: 'mod' }, h('h3', null, 'Сохраняю на сайт'), txt, h('div', { class: 'prog' }, pb)));
+  document.body.append(bg);
+  try {
+    const { html, files } = await buildFinal('external');
+    const have = (await api('list')).files || {};
+    const extra = await seoFiles();
+    const todo = files.filter(f => have[f.name] !== f.data.length).concat(extra);
+    const total = todo.length + 1; let done = 0;
+    const step = () => { pb.style.width = Math.round(++done / total * 100) + '%'; };
+    for (const f of todo) { txt.textContent = 'Загружаю ' + f.name; await putFile(f.name, f.data); step(); }
+    txt.textContent = 'Записываю страницу…';
+    await putFile('index.html', new TextEncoder().encode(html)); step();
+    try { await api('cleanup', {}, JSON.stringify(files.map(f => f.name))); } catch (e) { }
+    bg.remove();
+    markSaved('Сайт сохранён на сервере. Прежняя версия — в резервной копии.');
+  } catch (e) { bg.remove(); if (e.code === 401) S.pass = ''; toast('Не удалось сохранить: ' + e.message, 'err', 8000); }
+}
+async function showBackups() {
+  if (!await askPass()) return;
+  try {
+    const j = await api('backups'); const l = h('div', { class: 'list' });
+    if (!j.backups.length) l.append(h('p', { class: 'hint' }, 'Копий пока нет.'));
+    j.backups.forEach(b => l.append(h('div', { class: 'li' }, h('span', { class: 'nm' }, new Date(b.time * 1000).toLocaleString('ru-RU'), h('small', null, fmtSize(b.size))), h('button', { class: 'btn sm', onclick: async () => { if (!await confirmBox('Вернуть эту версию?', 'Текущая версия сайта тоже сохранится в копиях.', 'Вернуть')) return; await api('restore', { name: b.name }); toast('Версия восстановлена. Страница перезагрузится.', 'ok'); setTimeout(() => location.reload(), 1500); } }, 'Вернуть'))));
+    modal('Резервные копии', l, [{ label: 'Закрыть', pri: true, value: null }]);
+  } catch (e) { toast(e.message, 'err'); }
+}
+/* ZIP без сжатия: фото и видео и так сжаты */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u) { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zip(files) {
+  const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+  const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, time, true); lh.setUint16(12, date, true); lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nm, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, time, true); ch.setUint16(14, date, true); ch.setUint32(16, crc, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true); ch.setUint16(28, nm.length, true); ch.setUint32(42, off, true);
+    cen.push(ch.buffer, nm); off += 30 + nm.length + sz;
+  }
+  const cs = cen.reduce((a, b) => a + (b.byteLength !== undefined ? b.byteLength : b.length), 0);
+  const end = new DataView(new ArrayBuffer(22)); end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cs, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...cen, end.buffer], { type: 'application/zip' });
+}
+
+boot();
+</script>
+</body>
+</html>
